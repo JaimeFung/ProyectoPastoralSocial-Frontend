@@ -1,10 +1,76 @@
 <%-- 
     Document   : expediente-detalle
-    Created on : Dec 15, 2025, 5:16:21 PM
+    Created on : Dec 15, 2025, 5:16:21 PM
     Author     : Jaime
 --%>
 
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.List"%>
+<%@page import="edu.ulatina.controller.*"%>
+<%@page import="edu.ulatina.model.*"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%
+    // Obtener el ID del expediente desde el parámetro
+    String idExpedienteStr = request.getParameter("id");
+    
+    if (idExpedienteStr == null || idExpedienteStr.trim().isEmpty()) {
+        response.sendRedirect("expedientes.jsp");
+        return;
+    }
+    
+    Integer idExpediente = null;
+    try {
+        idExpediente = Integer.parseInt(idExpedienteStr);
+    } catch (NumberFormatException e) {
+        response.sendRedirect("expedientes.jsp");
+        return;
+    }
+    
+    // Controladores
+    ExpedienteController expedienteController = new ExpedienteController();
+    AddendumController addendumController = new AddendumController();
+    SeguimientoController seguimientoController = new SeguimientoController();
+    MiembroFamiliaController miembroController = new MiembroFamiliaController();
+    
+    // Cargar datos del expediente
+    Expediente expediente = expedienteController.buscarPorId(idExpediente);
+    
+    if (expediente == null) {
+        response.sendRedirect("expedientes.jsp");
+        return;
+    }
+    
+    // Obtener familia asociada
+    Familia familia = expediente.getFamilia();
+    
+    // Obtener jefe de familia
+    MiembroFamilia jefeFamilia = miembroController.buscarJefeFamilia(familia.getIdFamilia());
+    
+    // Obtener miembros de la familia
+    List<MiembroFamilia> miembrosFamilia = miembroController.listarPorFamilia(familia.getIdFamilia());
+    
+    // Obtener addendums
+    List<Addendum> addendums = addendumController.listarPorExpediente(idExpediente);
+    
+    // Obtener seguimientos
+    List<Seguimiento> seguimientos = seguimientoController.listarPorExpediente(idExpediente);
+    
+    // Formato de fecha
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    SimpleDateFormat sdfLargo = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    
+    // Estado del expediente
+    String estadoClase = "pill-success";
+    String estadoTexto = "Abierto";
+    
+    if (expediente.getEstado() == Expediente.Estado.CERRADO) {
+        estadoClase = "pill";
+        estadoTexto = "Cerrado";
+    } 
+    
+%>
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -137,8 +203,6 @@
                 box-shadow: 0 0 0 1px rgba(201, 165, 104, 0.6);
             }
 
-            /* TOP NAVBAR */
-
             .top-navbar {
                 position: fixed;
                 top: 0;
@@ -171,8 +235,6 @@
                 color: var(--color-primary);
                 text-decoration: underline;
             }
-
-            /* MAIN */
 
             .main-content {
                 margin-left: 280px;
@@ -219,6 +281,7 @@
                 gap: 0.4rem;
                 box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
                 transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+                text-decoration: none;
             }
 
             .back-btn::before {
@@ -314,6 +377,7 @@
                 gap: 0.35rem;
                 transition: background-color 0.2s ease, color 0.2s ease,
                     box-shadow 0.2s ease, transform 0.1s ease;
+                text-decoration: none;
             }
 
             .btn-primary {
@@ -337,8 +401,6 @@
             .btn-secondary:hover {
                 background: #F3F4F6;
             }
-
-            /* Tablas simples para listas */
 
             .table-simple {
                 width: 100%;
@@ -377,8 +439,6 @@
                 padding: 0;
             }
 
-            /* timeline */
-
             .timeline {
                 margin-top: 0.6rem;
             }
@@ -416,6 +476,39 @@
                 color: #374151;
             }
 
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .info-item {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .info-label {
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--color-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .info-value {
+                font-size: 0.9rem;
+                color: var(--color-text);
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 2rem 1rem;
+                color: var(--color-muted);
+                font-size: 0.875rem;
+            }
+
             @media (max-width: 768px) {
                 .sidebar {
                     width: 100%;
@@ -437,7 +530,7 @@
                     padding: 1.5rem 1.2rem 2rem;
                 }
 
-                .two-column-grid {
+                .two-column-grid, .info-grid {
                     grid-template-columns: 1fr;
                 }
             }
@@ -458,16 +551,14 @@
             <nav class="nav-menu">
                 <a href="dashboard.jsp" class="nav-item">Panel principal</a>
                 <a href="expedientes.jsp" class="nav-item active">Expedientes</a>
-                <a href="#" class="nav-item">Eventos</a>
-                <a href="#" class="nav-item">Reportes</a>
             </nav>
         </aside>
 
         <!-- Top navbar -->
         <header class="top-navbar">
             <div class="nav-actions">
-                <a href="#">Configurar cuenta</a>
-                <a href="index.jsp">Cerrar sesión</a>
+                <a href="usuarios.jsp">Configurar cuenta</a>
+                <a href="login.jsp">Cerrar sesión</a>
             </div>
         </header>
 
@@ -476,16 +567,17 @@
             <div class="container">
 
                 <div class="page-header">
-                    <button class="back-btn" onclick="history.back()">Volver a expedientes</button>
+                    <a href="expedientes.jsp" class="back-btn">Volver a expedientes</a>
                     <div>
-                        <h1 class="page-title">Expediente #12345</h1>
+                        <h1 class="page-title">Expediente <%= familia.getNumeroExpediente() %></h1>
                         <p class="page-subtitle">
-                            Beneficiario: María López &middot; Parroquia Catedral
+                            Beneficiario: <%= familia.getNombreJefeFamilia()%> &middot; 
+                            <%= familia.getParroquia().getNombre() %>
                         </p>
                     </div>
                 </div>
 
-                <!-- Datos generales + modificar expediente + verificaciones -->
+                <!-- Datos generales + modificar expediente -->
                 <section class="card">
                     <div class="card-header">
                         <div>
@@ -495,21 +587,133 @@
                             </p>
                         </div>
                         <div class="btn-row">
-                            <button class="btn btn-secondary">Verificar solicitante en diócesis</button>
-                            <button class="btn btn-secondary">Verificar última ayuda</button>
-                            <button class="btn btn-primary">Modificar expediente</button>
+                            <a href="editar-expediente.jsp?id=<%= expediente.getIdExpediente() %>" 
+                               class="btn btn-primary">Modificar expediente</a>
                         </div>
                     </div>
 
                     <div class="pill-row">
-                        <span class="pill pill-success">Estado: Abierto</span>
-                        <span class="pill">Tipo de ayuda: Despensa mensual</span>
-                        <span class="pill">Fecha de apertura: 05/12/2025</span>
-                        <span class="pill">Responsable: Pbro. Juan García</span>
+                        <span class="pill <%= estadoClase %>">Estado: <%= estadoTexto %></span>
+                        <span class="pill">Fecha de apertura: <%= sdf.format(expediente.getFechaApertura()) %></span>
+                        <span class="pill">Situación: <%= familia.getSituacionEconomica() %></span>
                     </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Cédula</span>
+                            <span class="info-value"><%= familia.getIdentificacionJefe()%></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Teléfono</span>
+                            <span class="info-value"><%= familia.getTelefono() != null ? familia.getTelefono() : "No especificado" %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Dirección</span>
+                            <span class="info-value"><%= familia.getDireccion() %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Miembros en la familia</span>
+                            <span class="info-value"><%= familia.getCantidadMiembros() %> personas</span>
+                        </div>
+                    </div>
+
+                    <% if (expediente.getNotasGenerales() != null && !expediente.getNotasGenerales().trim().isEmpty()) { %>
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: #F9FAFB; border-radius: 8px; border: 1px solid var(--color-border);">
+                            <div class="info-label" style="margin-bottom: 0.5rem;">Notas Generales</div>
+                            <div class="info-value"><%= expediente.getNotasGenerales() %></div>
+                        </div>
+                    <% } %>
                 </section>
 
-                <!-- Addendum y archivos -->
+                <!-- Información del Jefe de Familia -->
+                <% if (jefeFamilia != null) { %>
+                <section class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">Información del Jefe de Familia</h2>
+                            <p class="card-description">
+                                Datos personales del responsable del hogar.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Nombre Completo</span>
+                            <span class="info-value"><%= jefeFamilia.getNombreCompleto() %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Fecha de Nacimiento</span>
+                            <span class="info-value"><%= sdf.format(jefeFamilia.getFechaNacimiento()) %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Género</span>
+                            <span class="info-value"><%= jefeFamilia.getGenero() %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Estado Civil</span>
+                            <span class="info-value"><%= jefeFamilia.getEstadoCivil() != null ? jefeFamilia.getEstadoCivil() : "No especificado" %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value"><%= jefeFamilia.getEmail() != null ? jefeFamilia.getEmail() : "No especificado" %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Teléfono</span>
+                            <span class="info-value"><%= jefeFamilia.getTelefono() != null ? jefeFamilia.getTelefono() : "No especificado" %></span>
+                        </div>
+                    </div>
+                </section>
+                <% } %>
+
+                <!-- Miembros de la Familia -->
+                <section class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">Miembros de la Familia</h2>
+                            <p class="card-description">
+                                Todas las personas que conforman el núcleo familiar.
+                            </p>
+                        </div>
+                        <a href="agregar-miembro.jsp?idFamilia=<%= familia.getIdFamilia() %>" 
+                           class="btn btn-primary">Agregar miembro</a>
+                    </div>
+
+                    <% if (miembrosFamilia != null && !miembrosFamilia.isEmpty()) { %>
+                    <table class="table-simple">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Parentesco</th>
+                                <th>Fecha Nac.</th>
+                                <th>Género</th>
+                                <th class="acciones-cell">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (MiembroFamilia miembro : miembrosFamilia) { %>
+                            <tr>
+                                <td><%= miembro.getNombreCompleto() %></td>
+                                <td><%= miembro.getParentesco() %></td>
+                                <td><%= sdf.format(miembro.getFechaNacimiento()) %></td>
+                                <td><%= miembro.getGenero() %></td>
+                                <td class="acciones-cell">
+                                    <a href="ver-miembro.jsp?id=<%= miembro.getIdMiembro() %>" class="link-inline">Ver</a>
+                                    &middot;
+                                    <a href="editar-miembro.jsp?id=<%= miembro.getIdMiembro() %>" class="link-inline">Editar</a>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                    <% } else { %>
+                    <div class="empty-state">
+                        No hay miembros registrados en esta familia.
+                    </div>
+                    <% } %>
+                </section>
+
+                <!-- Addendum y Seguimiento -->
                 <section class="two-column-grid">
                     <!-- Addendum -->
                     <section class="card">
@@ -520,9 +724,11 @@
                                     Notas formales que complementan o actualizan la información del expediente.
                                 </p>
                             </div>
-                            <button class="btn btn-primary">Agregar addendum</button>
+                            <a href="agregar-addendum.jsp?id=<%= expediente.getIdExpediente() %>" 
+                               class="btn btn-primary">Agregar</a>
                         </div>
 
+                        <% if (addendums != null && !addendums.isEmpty()) { %>
                         <table class="table-simple">
                             <thead>
                                 <tr>
@@ -532,23 +738,92 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <% for (Addendum addendum : addendums) { %>
                                 <tr>
-                                    <td>10/12/2025</td>
-                                    <td>Actualización de datos de contacto del beneficiario.</td>
+                                    <td><%= sdf.format(addendum.getFechaRegistro()) %></td>
+                                    <td><%= addendum.getObservaciones() %></td>
                                     <td class="acciones-cell">
-                                        <button class="link-inline">Ver</button>
+                                        <a href="ver-addendum.jsp?id=<%= addendum.getIdAddendum() %>" class="link-inline">Ver</a>
                                         &middot;
-                                        <button class="link-inline">Editar</button>
+                                        <a href="editar-addendum.jsp?id=<%= addendum.getIdAddendum() %>" class="link-inline">Editar</a>
                                     </td>
                                 </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                        <% } else { %>
+                        <div class="empty-state">
+                            No hay addendums registrados.
+                        </div>
+                        <% } %>
+                    </section>
+
+                    <!-- Seguimiento y notas -->
+                    <section class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">Seguimiento y notas</h2>
+                                <p class="card-description">
+                                    Observaciones pastorales, visitas y acuerdos de seguimiento.
+                                </p>
+                            </div>
+                            <a href="agregar-seguimiento.jsp?id=<%= expediente.getIdExpediente() %>" 
+                               class="btn btn-primary">Agregar</a>
+                        </div>
+
+                        <% if (seguimientos != null && !seguimientos.isEmpty()) { %>
+                        <div class="timeline">
+                            <% for (Seguimiento seg : seguimientos) { %>
+                            <div class="timeline-item">
+                                <p class="timeline-title"><%= seg.getTitulo() %></p>
+                                <p class="timeline-meta">
+                                    <%= sdfLargo.format(seg.getFechaRegistro()) %>
+                                    <% if (seg.getResponsable() != null) { %>
+                                    &middot; <%= seg.getResponsable() %>
+                                    <% } %>
+                                </p>
+                                <p class="timeline-text"><%= seg.getDescripcion() %></p>
+                            </div>
+                            <% } %>
+                        </div>
+                        <% } else { %>
+                        <div class="empty-state">
+                            No hay seguimientos registrados.
+                        </div>
+                        <% } %>
+                    </section>
+                </section>
+                    
+                    <section class="two-column-grid">
+                    <section class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">Entregas asociadas a la ayuda</h2>
+                                <p class="card-description">
+                                    Registro de las ayudas entregadas al beneficiario dentro de este expediente.
+                                </p>
+                            </div>
+                            <button class="btn btn-primary">Registrar entrega</button>
+                        </div>
+
+                        <table class="table-simple">
+                            <thead>
                                 <tr>
-                                    <td>20/12/2025</td>
-                                    <td>Se incorporan observaciones de la visita domiciliaria.</td>
-                                    <td class="acciones-cell">
-                                        <button class="link-inline">Ver</button>
-                                        &middot;
-                                        <button class="link-inline">Editar</button>
-                                    </td>
+                                    <th>Fecha</th>
+                                    <th>Tipo de ayuda</th>
+                                    <th>Entregado por</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>06/12/2025</td>
+                                    <td>Despensa</td>
+                                    <td>Caritas Catedral</td>
+                                </tr>
+                                <tr>
+                                    <td>13/12/2025</td>
+                                    <td>Vales de transporte</td>
+                                    <td>Pastoral Juvenil</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -600,80 +875,7 @@
                         </table>
                     </section>
                 </section>
-
-                <!-- Entregas y seguimiento/notas -->
-                <section class="two-column-grid">
-                    <!-- Entregas -->
                     <section class="card">
-                        <div class="card-header">
-                            <div>
-                                <h2 class="card-title">Entregas asociadas a la ayuda</h2>
-                                <p class="card-description">
-                                    Registro de las ayudas entregadas al beneficiario dentro de este expediente.
-                                </p>
-                            </div>
-                            <button class="btn btn-primary">Registrar entrega</button>
-                        </div>
-
-                        <table class="table-simple">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Tipo de ayuda</th>
-                                    <th>Entregado por</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>06/12/2025</td>
-                                    <td>Despensa</td>
-                                    <td>Caritas Catedral</td>
-                                </tr>
-                                <tr>
-                                    <td>13/12/2025</td>
-                                    <td>Vales de transporte</td>
-                                    <td>Pastoral Juvenil</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </section>
-
-                    <!-- Seguimiento y notas -->
-                    <section class="card">
-                        <div class="card-header">
-                            <div>
-                                <h2 class="card-title">Seguimiento y notas</h2>
-                                <p class="card-description">
-                                    Observaciones pastorales, visitas y acuerdos de seguimiento con el beneficiario.
-                                </p>
-                            </div>
-                            <div class="btn-row">
-                                <button class="btn btn-primary">Registrar seguimiento</button>
-                                <button class="btn btn-secondary">Agregar nota</button>                
-                            </div>
-                        </div>
-
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <p class="timeline-title">Visita domiciliaria</p>
-                                <p class="timeline-meta">10/12/2025 &middot; Agente: Ana Rodríguez</p>
-                                <p class="timeline-text">
-                                    Se confirma la situación económica y se acuerda mantener apoyo por 3 meses.
-                                </p>
-                            </div>
-                            <div class="timeline-item">
-                                <p class="timeline-title">Seguimiento telefónico</p>
-                                <p class="timeline-meta">18/12/2025 &middot; Agente: Pbro. Juan García</p>
-                                <p class="timeline-text">
-                                    Beneficiaria expresa agradecimiento y se coordina participación en grupo parroquial.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-                </section>
-
-                <!-- Eventos asociados (para seguimiento de participación) -->
-                <section class="card">
                     <div class="card-header">
                         <div>
                             <h2 class="card-title">Eventos vinculados al expediente</h2>

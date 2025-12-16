@@ -4,7 +4,21 @@
     Author     : Jaime
 --%>
 
+<%@page import="edu.ulatina.controller.UsuarioController"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%
+    String mensaje = null;
+
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        String email = request.getParameter("email");
+
+        UsuarioController controller = new UsuarioController();
+        controller.solicitarRecuperacionContrasena(email);
+
+        mensaje = "Si el correo existe, se enviaron instrucciones para recuperar la contraseña.";
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -138,8 +152,12 @@
             <h1>Recuperar contraseña</h1>
             <p class="subtitle">Ingrese su correo para recibir un enlace para recuperar su contraseña.</p>
         </div>
-
-        <form id="resetForm">
+        <% if (mensaje != null) { %>
+            <p style="color:green; text-align:center; margin-bottom:1rem;">
+                <%= mensaje %>
+            </p>
+        <% } %>
+        <form action="recuperar-contrasena.jsp" method="post">
             <div class="form-group">
                 <label for="email">Correo electrónico</label>
                 <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" required>
