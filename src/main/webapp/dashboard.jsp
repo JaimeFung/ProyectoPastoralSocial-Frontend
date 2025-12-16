@@ -1,0 +1,568 @@
+<%-- 
+    Document   : dashboard
+    Created on : Dec 15, 2025, 5:16:05 PM
+    Author     : Jaime
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard - Sistema Pastoral Social</title>
+        <style>
+            :root {
+                --color-bg: #F7F4EE;
+                --color-primary: #23415A;
+                --color-primary-dark: #1B3146;
+                --color-accent: #C9A568;
+                --color-border: #E5DED0;
+                --color-text: #1F2933;
+                --color-muted: #6B7280;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+                    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+                    'Helvetica Neue', sans-serif;
+                background: var(--color-bg);
+                display: flex;
+                min-height: 100vh;
+                color: var(--color-text);
+                line-height: 1.5;
+            }
+
+            .sidebar {
+                width: 280px;
+                background: #FFFFFF;
+                padding: 1.5rem 1rem;
+                border-right: 1px solid var(--color-border);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+                position: fixed;
+                height: 100vh;
+                left: 0;
+                top: 0;
+                overflow-y: auto;
+            }
+
+            .logo-container {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                padding: 0.5rem 0.5rem 1rem;
+                border-bottom: 1px solid var(--color-border);
+            }
+
+            .logo {
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, var(--color-primary),
+                    var(--color-accent));
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                color: #FFFFFF;
+                font-size: 24px;
+                font-weight: bold;
+                box-shadow: 0 5px 20px rgba(15, 23, 42, 0.22);
+            }
+
+            .logo::before, .logo::after {
+                content: "";
+                position: absolute;
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 999px;
+            }
+
+            .logo::before {
+                width: 4px;
+                height: 24px;
+            }
+
+            .logo::after {
+                width: 20px;
+                height: 4px;
+            }
+
+            .brand-text h1 {
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: #111827;
+                margin: 0;
+                letter-spacing: 0.02em;
+            }
+
+            .brand-text p {
+                font-size: 0.75rem;
+                color: var(--color-muted);
+                margin: 0;
+            }
+
+            .nav-menu {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+
+            .nav-item {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.7rem 1rem;
+                color: #4B5563;
+                text-decoration: none;
+                border-radius: 999px;
+                transition: all 0.2s ease;
+                font-size: 0.9rem;
+            }
+
+            .nav-item:hover {
+                background: #E3EDF5;
+                color: var(--color-primary);
+            }
+
+            .nav-item.active {
+                background: var(--color-primary);
+                color: #FFFFFF;
+                font-weight: 600;
+                box-shadow: 0 0 0 1px rgba(201, 165, 104, 0.6);
+            }
+
+            .nav-item.active:hover {
+                background: var(--color-primary-dark);
+            }
+
+            .nav-icon {
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .top-navbar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                left: 280px;
+                background: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(6px);
+                border-bottom: 1px solid var(--color-border);
+                padding: 0.9rem 2rem;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                z-index: 10;
+            }
+
+            .navbar-title {
+                display: none;
+            }
+
+            .nav-actions {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .nav-actions a {
+                color: #4B5563;
+                text-decoration: none;
+                font-size: 0.875rem;
+                transition: color 0.2s;
+            }
+
+            .nav-actions a:hover {
+                color: var(--color-primary);
+                text-decoration: underline;
+            }
+
+            .main-content {
+                margin-left: 280px;
+                flex: 1;
+                padding-top: 80px;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .page-header {
+                margin-bottom: 2rem;
+            }
+
+            .page-title {
+                font-size: 1.9rem;
+                color: #111827;
+                margin-bottom: 0.4rem;
+                letter-spacing: 0.02em;
+            }
+
+            .page-subtitle {
+                color: var(--color-muted);
+                font-size: 0.95rem;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .stat-card {
+                background: #FFFFFF;
+                border-radius: 12px;
+                padding: 1.4rem 1.5rem;
+                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+                border-top: 3px solid var(--color-accent);
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+            }
+
+            .stat-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 1rem;
+            }
+
+            .stat-title {
+                font-size: 0.85rem;
+                color: var(--color-muted);
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+            }
+
+            .stat-icon {
+                display: none;
+            }
+
+            .stat-value {
+                font-size: 1.9rem;
+                font-weight: 600;
+                color: var(--color-primary);
+                margin-bottom: 0.25rem;
+            }
+
+            .stat-description {
+                font-size: 0.8rem;
+                color: var(--color-muted);
+            }
+
+            .content-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .card {
+                background: #FFFFFF;
+                border-radius: 12px;
+                padding: 1.5rem;
+                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+                border: 1px solid var(--color-border);
+            }
+
+            .card-header {
+                margin-bottom: 1.3rem;
+            }
+
+            .card-title {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #111827;
+                margin-bottom: 0.2rem;
+            }
+
+            .card-description {
+                font-size: 0.9rem;
+                color: var(--color-muted);
+            }
+
+            .activity-item {
+                padding: 0.9rem 0;
+                border-bottom: 1px solid #E5E7EB;
+                display: flex;
+                gap: 0.75rem;
+            }
+
+            .activity-item:last-child {
+                border-bottom: none;
+            }
+
+            .activity-icon {
+                display: none;
+            }
+
+            .activity-content {
+                flex: 1;
+            }
+
+            .activity-title {
+                font-size: 0.9rem;
+                color: #111827;
+                margin-bottom: 0.08rem;
+                font-weight: 500;
+            }
+
+            .activity-beneficiary {
+                font-size: 0.85rem;
+                color: #4B5563;
+                margin-bottom: 0.08rem;
+            }
+
+            .activity-date {
+                font-size: 0.75rem;
+                color: #9CA3AF;
+            }
+
+            .parish-item {
+                margin-bottom: 1.15rem;
+            }
+
+            .parish-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 0.35rem;
+            }
+
+            .parish-name {
+                font-size: 0.9rem;
+                color: #374151;
+            }
+
+            .parish-count {
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: var(--color-primary);
+            }
+
+            .progress-bar {
+                width: 100%;
+                height: 8px;
+                background: #E5E7EB;
+                border-radius: 999px;
+                overflow: hidden;
+            }
+
+            .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--color-accent),
+                    var(--color-primary));
+                border-radius: 999px;
+            }
+
+            @media ( max-width : 768px) {
+                .sidebar {
+                    width: 100%;
+                    position: relative;
+                    height: auto;
+                }
+                .top-navbar {
+                    left: 0;
+                    position: relative;
+                }
+                .main-content {
+                    margin-left: 0;
+                    padding-top: 0;
+                }
+                .container {
+                    padding: 1.5rem 1.25rem 2rem;
+                }
+                .content-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+
+
+    </head>
+    <body>
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo"></div>
+                <div class="brand-text">
+                    <h1>Pastoral Social</h1>
+                    <p>Diócesis de Cartago</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="dashboard.jsp" class="nav-item active"> <span>Panel principal</span>
+                </a> <a href="expedientes.jsp" class="nav-item"> <span>Expedientes</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="main-content">
+            <header class="top-navbar">
+
+                <div class="nav-actions">
+                    <a href="usuarios.jsp">Configurar cuenta</a>
+                    <a href="index.jsp">Cerrar sesión</a>
+                </div>
+            </header>
+
+            <div class="container">
+                <div class="page-header">
+                    <h1 class="page-title">Panel de Control</h1>
+                    <p class="page-subtitle">Bienvenido al Sistema de Gestión de
+                        Pastoral Social</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Total Beneficiarios</div>
+                        </div>
+                        <div class="stat-value">248</div>
+                        <div class="stat-description">Registrados en el sistema</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Expedientes Activos</div>
+                        </div>
+                        <div class="stat-value">142</div>
+                        <div class="stat-description">En seguimiento actual</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Ayudas Este Mes</div>
+                        </div>
+                        <div class="stat-value">67</div>
+                        <div class="stat-description">Entregadas en diciembre</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Parroquias Activas</div>
+                        </div>
+                        <div class="stat-value">8</div>
+                        <div class="stat-description">Participando en el programa</div>
+                    </div>
+                </div>
+
+                <div class="content-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Actividades Recientes</div>
+                            <div class="card-description">Últimas acciones en el sistema</div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">📁</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Nuevo expediente creado</div>
+                                <div class="activity-beneficiary">María Rodríguez</div>
+                                <div class="activity-date">Hace 2 horas</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-title">Ayuda alimentaria entregada</div>
+                                <div class="activity-beneficiary">Carlos Méndez</div>
+                                <div class="activity-date">Hace 5 horas</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-title">Expediente actualizado</div>
+                                <div class="activity-beneficiary">Ana López</div>
+                                <div class="activity-date">Hace 1 día</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-content">
+                                <div class="activity-title">Nuevo beneficiario registrado</div>
+                                <div class="activity-beneficiary">José Hernández</div>
+                                <div class="activity-date">Hace 2 días</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Distribución por Parroquia</div>
+                            <div class="card-description">Beneficiarios por cada
+                                parroquia</div>
+                        </div>
+
+                        <div class="parish-item">
+                            <div class="parish-header">
+                                <span class="parish-name">Santiago Apóstol</span> <span
+                                    class="parish-count">68</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 27%"></div>
+                            </div>
+                        </div>
+
+                        <div class="parish-item">
+                            <div class="parish-header">
+                                <span class="parish-name">San Nicolás</span> <span
+                                    class="parish-count">54</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 22%"></div>
+                            </div>
+                        </div>
+
+                        <div class="parish-item">
+                            <div class="parish-header">
+                                <span class="parish-name">Inmaculada Concepción</span> <span
+                                    class="parish-count">48</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 19%"></div>
+                            </div>
+                        </div>
+
+                        <div class="parish-item">
+                            <div class="parish-header">
+                                <span class="parish-name">Nuestra Señora del Pilar</span> <span
+                                    class="parish-count">42</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 17%"></div>
+                            </div>
+                        </div>
+
+                        <div class="parish-item">
+                            <div class="parish-header">
+                                <span class="parish-name">Otras parroquias</span> <span
+                                    class="parish-count">36</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 15%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

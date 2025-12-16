@@ -1,0 +1,716 @@
+<%-- 
+    Document   : expediente-detalle
+    Created on : Dec 15, 2025, 5:16:21 PM
+    Author     : Jaime
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Detalle de expediente - Pastoral Social</title>
+        <style>
+            :root {
+                --color-bg: #F7F4EE;
+                --color-primary: #23415A;
+                --color-primary-dark: #1B3146;
+                --color-accent: #C9A568;
+                --color-border: #E5DED0;
+                --color-text: #1F2933;
+                --color-muted: #6B7280;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+                background: var(--color-bg);
+                display: flex;
+                min-height: 100vh;
+                color: var(--color-text);
+                line-height: 1.5;
+            }
+
+            .sidebar {
+                width: 280px;
+                background: #FFFFFF;
+                padding: 1.5rem 1rem;
+                border-right: 1px solid var(--color-border);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+                position: fixed;
+                height: 100vh;
+                left: 0;
+                top: 0;
+                overflow-y: auto;
+            }
+
+            .logo-container {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.6rem;
+                padding: 0.5rem 0.5rem 1rem;
+                border-bottom: 1px solid var(--color-border);
+            }
+
+            .logo {
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                color: #FFFFFF;
+                font-size: 24px;
+                font-weight: bold;
+                box-shadow: 0 5px 20px rgba(15, 23, 42, 0.22);
+            }
+
+            .logo::before,
+            .logo::after {
+                content: "";
+                position: absolute;
+                background: rgba(255, 255, 255, 0.9);
+                border-radius: 999px;
+            }
+
+            .logo::before {
+                width: 4px;
+                height: 24px;
+            }
+
+            .logo::after {
+                width: 20px;
+                height: 4px;
+            }
+
+            .brand-text h1 {
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: #111827;
+                margin: 0;
+                letter-spacing: 0.02em;
+            }
+
+            .brand-text p {
+                font-size: 0.75rem;
+                color: var(--color-muted);
+                margin: 0;
+            }
+
+            .nav-menu {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-top: 1.1rem;
+            }
+
+            .nav-item {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.7rem 1rem;
+                color: #4B5563;
+                text-decoration: none;
+                border-radius: 999px;
+                transition: all 0.2s ease;
+                font-size: 0.9rem;
+            }
+
+            .nav-item:hover {
+                background: #E3EDF5;
+                color: var(--color-primary);
+            }
+
+            .nav-item.active {
+                background: var(--color-primary);
+                color: #FFFFFF;
+                font-weight: 600;
+                box-shadow: 0 0 0 1px rgba(201, 165, 104, 0.6);
+            }
+
+            /* TOP NAVBAR */
+
+            .top-navbar {
+                position: fixed;
+                top: 0;
+                right: 0;
+                left: 280px;
+                background: rgba(255, 255, 255, 0.96);
+                backdrop-filter: blur(6px);
+                border-bottom: 1px solid var(--color-border);
+                padding: 0.9rem 2rem;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                z-index: 10;
+            }
+
+            .nav-actions {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .nav-actions a {
+                color: #4B5563;
+                text-decoration: none;
+                font-size: 0.875rem;
+                transition: color 0.2s ease, text-decoration 0.2s ease;
+            }
+
+            .nav-actions a:hover {
+                color: var(--color-primary);
+                text-decoration: underline;
+            }
+
+            /* MAIN */
+
+            .main-content {
+                margin-left: 280px;
+                flex: 1;
+                padding-top: 80px;
+            }
+
+            .container {
+                max-width: 1150px;
+                margin: 0 auto;
+                padding: 2rem 1.5rem 2.4rem;
+            }
+
+            .page-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 2rem;
+                flex-wrap: wrap;
+            }
+
+            .page-title {
+                font-size: 1.9rem;
+                color: #111827;
+                margin-bottom: 0.2rem;
+                letter-spacing: 0.02em;
+            }
+
+            .page-subtitle {
+                color: var(--color-muted);
+                font-size: 0.9rem;
+            }
+
+            .back-btn {
+                padding: 0.45rem 1rem;
+                border-radius: 999px;
+                border: none;
+                background: #E3EDF5;
+                color: var(--color-primary);
+                font-size: 0.8rem;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+                transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+            }
+
+            .back-btn::before {
+                content: "←";
+                font-size: 0.9rem;
+            }
+
+            .back-btn:hover {
+                background: #D6E3F1;
+                box-shadow: 0 8px 18px rgba(15, 23, 42, 0.16);
+                transform: translateY(-1px);
+            }
+
+            .card {
+                background: #FFFFFF;
+                border-radius: 12px;
+                padding: 1.5rem 1.4rem 1.4rem;
+                box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+                border: 1px solid var(--color-border);
+                margin-bottom: 1.4rem;
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 1rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .card-title {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #111827;
+            }
+
+            .card-description {
+                font-size: 0.88rem;
+                color: var(--color-muted);
+            }
+
+            .pill-row {
+                display: flex;
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .pill {
+                font-size: 0.78rem;
+                padding: 0.25rem 0.7rem;
+                border-radius: 999px;
+                border: 1px solid var(--color-border);
+                background: #F9FAFB;
+                color: #4B5563;
+            }
+
+            .pill-success {
+                border-color: #BBF7D0;
+                background: #DCFCE7;
+                color: #166534;
+            }
+
+            .pill-warning {
+                border-color: #FEF3C7;
+                background: #FFFBEB;
+                color: #92400E;
+            }
+
+            .two-column-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1.4rem;
+                margin-bottom: 1.4rem;
+            }
+
+            .btn-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-top: 0.2rem;
+            }
+
+            .btn {
+                padding: 0.5rem 0.9rem;
+                border-radius: 999px;
+                border: none;
+                font-size: 0.85rem;
+                font-weight: 500;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.35rem;
+                transition: background-color 0.2s ease, color 0.2s ease,
+                    box-shadow 0.2s ease, transform 0.1s ease;
+            }
+
+            .btn-primary {
+                background: var(--color-primary);
+                color: #FFFFFF;
+                box-shadow: 0 5px 18px rgba(15, 23, 42, 0.25);
+            }
+
+            .btn-primary:hover {
+                background: var(--color-primary-dark);
+                box-shadow: 0 7px 22px rgba(15, 23, 42, 0.3);
+                transform: translateY(-1px);
+            }
+
+            .btn-secondary {
+                background: #FFFFFF;
+                color: var(--color-primary);
+                border: 1px solid var(--color-border);
+            }
+
+            .btn-secondary:hover {
+                background: #F3F4F6;
+            }
+
+            /* Tablas simples para listas */
+
+            .table-simple {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 0.6rem;
+            }
+
+            .table-simple th,
+            .table-simple td {
+                font-size: 0.82rem;
+                padding: 0.4rem 0.3rem;
+                border-bottom: 1px solid #E5E7EB;
+                text-align: left;
+            }
+
+            .table-simple th {
+                font-weight: 600;
+                color: #4B5563;
+            }
+
+            .table-simple tr:last-child td {
+                border-bottom: none;
+            }
+
+            .acciones-cell {
+                white-space: nowrap;
+            }
+
+            .link-inline {
+                border: none;
+                background: transparent;
+                color: var(--color-primary);
+                font-size: 0.8rem;
+                cursor: pointer;
+                text-decoration: underline;
+                padding: 0;
+            }
+
+            /* timeline */
+
+            .timeline {
+                margin-top: 0.6rem;
+            }
+
+            .timeline-item {
+                border-left: 2px solid var(--color-border);
+                padding-left: 0.75rem;
+                margin-bottom: 0.7rem;
+                position: relative;
+            }
+
+            .timeline-item::before {
+                content: "";
+                width: 8px;
+                height: 8px;
+                border-radius: 999px;
+                background: var(--color-primary);
+                position: absolute;
+                left: -5px;
+                top: 0.25rem;
+            }
+
+            .timeline-title {
+                font-size: 0.85rem;
+                font-weight: 500;
+            }
+
+            .timeline-meta {
+                font-size: 0.75rem;
+                color: var(--color-muted);
+            }
+
+            .timeline-text {
+                font-size: 0.8rem;
+                color: #374151;
+            }
+
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 100%;
+                    position: relative;
+                    height: auto;
+                }
+
+                .top-navbar {
+                    left: 0;
+                    position: relative;
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    padding-top: 0;
+                }
+
+                .container {
+                    padding: 1.5rem 1.2rem 2rem;
+                }
+
+                .two-column-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo"></div>
+                <div class="brand-text">
+                    <h1>Pastoral Social</h1>
+                    <p>Diócesis de Cartago</p>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="dashboard.jsp" class="nav-item">Panel principal</a>
+                <a href="expedientes.jsp" class="nav-item active">Expedientes</a>
+                <a href="#" class="nav-item">Eventos</a>
+                <a href="#" class="nav-item">Reportes</a>
+            </nav>
+        </aside>
+
+        <!-- Top navbar -->
+        <header class="top-navbar">
+            <div class="nav-actions">
+                <a href="#">Configurar cuenta</a>
+                <a href="index.jsp">Cerrar sesión</a>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <main class="main-content">
+            <div class="container">
+
+                <div class="page-header">
+                    <button class="back-btn" onclick="history.back()">Volver a expedientes</button>
+                    <div>
+                        <h1 class="page-title">Expediente #12345</h1>
+                        <p class="page-subtitle">
+                            Beneficiario: María López &middot; Parroquia Catedral
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Datos generales + modificar expediente + verificaciones -->
+                <section class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">Datos del expediente</h2>
+                            <p class="card-description">
+                                Información básica del solicitante y estado general del caso.
+                            </p>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn btn-secondary">Verificar solicitante en diócesis</button>
+                            <button class="btn btn-secondary">Verificar última ayuda</button>
+                            <button class="btn btn-primary">Modificar expediente</button>
+                        </div>
+                    </div>
+
+                    <div class="pill-row">
+                        <span class="pill pill-success">Estado: Abierto</span>
+                        <span class="pill">Tipo de ayuda: Despensa mensual</span>
+                        <span class="pill">Fecha de apertura: 05/12/2025</span>
+                        <span class="pill">Responsable: Pbro. Juan García</span>
+                    </div>
+                </section>
+
+                <!-- Addendum y archivos -->
+                <section class="two-column-grid">
+                    <!-- Addendum -->
+                    <section class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">Addendum del expediente</h2>
+                                <p class="card-description">
+                                    Notas formales que complementan o actualizan la información del expediente.
+                                </p>
+                            </div>
+                            <button class="btn btn-primary">Agregar addendum</button>
+                        </div>
+
+                        <table class="table-simple">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                    <th class="acciones-cell">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>10/12/2025</td>
+                                    <td>Actualización de datos de contacto del beneficiario.</td>
+                                    <td class="acciones-cell">
+                                        <button class="link-inline">Ver</button>
+                                        &middot;
+                                        <button class="link-inline">Editar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>20/12/2025</td>
+                                    <td>Se incorporan observaciones de la visita domiciliaria.</td>
+                                    <td class="acciones-cell">
+                                        <button class="link-inline">Ver</button>
+                                        &middot;
+                                        <button class="link-inline">Editar</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <!-- Archivos -->
+                    <section class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">Archivos adjuntos</h2>
+                                <p class="card-description">
+                                    Documentos relacionados al expediente (oficios, constancias, formularios, etc.).
+                                </p>
+                            </div>
+                            <button class="btn btn-primary">Agregar archivo</button>
+                        </div>
+
+                        <table class="table-simple">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tipo</th>
+                                    <th>Fecha</th>
+                                    <th class="acciones-cell">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Carta de solicitud.pdf</td>
+                                    <td>PDF</td>
+                                    <td>04/12/2025</td>
+                                    <td class="acciones-cell">
+                                        <button class="link-inline">Ver</button>
+                                        &middot;
+                                        <button class="link-inline">Eliminar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Acta visita pastoral.jpg</td>
+                                    <td>Imagen</td>
+                                    <td>08/12/2025</td>
+                                    <td class="acciones-cell">
+                                        <button class="link-inline">Ver</button>
+                                        &middot;
+                                        <button class="link-inline">Eliminar</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </section>
+
+                <!-- Entregas y seguimiento/notas -->
+                <section class="two-column-grid">
+                    <!-- Entregas -->
+                    <section class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">Entregas asociadas a la ayuda</h2>
+                                <p class="card-description">
+                                    Registro de las ayudas entregadas al beneficiario dentro de este expediente.
+                                </p>
+                            </div>
+                            <button class="btn btn-primary">Registrar entrega</button>
+                        </div>
+
+                        <table class="table-simple">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo de ayuda</th>
+                                    <th>Entregado por</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>06/12/2025</td>
+                                    <td>Despensa</td>
+                                    <td>Caritas Catedral</td>
+                                </tr>
+                                <tr>
+                                    <td>13/12/2025</td>
+                                    <td>Vales de transporte</td>
+                                    <td>Pastoral Juvenil</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <!-- Seguimiento y notas -->
+                    <section class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">Seguimiento y notas</h2>
+                                <p class="card-description">
+                                    Observaciones pastorales, visitas y acuerdos de seguimiento con el beneficiario.
+                                </p>
+                            </div>
+                            <div class="btn-row">
+                                <button class="btn btn-primary">Registrar seguimiento</button>
+                                <button class="btn btn-secondary">Agregar nota</button>                
+                            </div>
+                        </div>
+
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <p class="timeline-title">Visita domiciliaria</p>
+                                <p class="timeline-meta">10/12/2025 &middot; Agente: Ana Rodríguez</p>
+                                <p class="timeline-text">
+                                    Se confirma la situación económica y se acuerda mantener apoyo por 3 meses.
+                                </p>
+                            </div>
+                            <div class="timeline-item">
+                                <p class="timeline-title">Seguimiento telefónico</p>
+                                <p class="timeline-meta">18/12/2025 &middot; Agente: Pbro. Juan García</p>
+                                <p class="timeline-text">
+                                    Beneficiaria expresa agradecimiento y se coordina participación en grupo parroquial.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+
+                <!-- Eventos asociados (para seguimiento de participación) -->
+                <section class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">Eventos vinculados al expediente</h2>
+                            <p class="card-description">
+                                Actividades de la Pastoral Social en las que participa el beneficiario.
+                            </p>
+                        </div>
+                        <div class="btn-row">
+                            <button class="btn btn-secondary">Modificar eventos</button>
+                            <button class="btn btn-primary">Crear evento</button>
+                        </div>
+                    </div>
+
+                    <table class="table-simple">
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Fecha</th>
+                                <th>Participación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Taller de economía familiar</td>
+                                <td>15/12/2025</td>
+                                <td>Asistió</td>
+                            </tr>
+                            <tr>
+                                <td>Jornada de voluntariado parroquial</td>
+                                <td>22/12/2025</td>
+                                <td>Inscrita</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+            </div>
+        </main>
+    </body>
+</html>
