@@ -19,7 +19,7 @@
 				value="jdbc:mysql://localhost:3306/dbpastoral?serverTimezone=UTC" />
 			<property name="javax.persistence.jdbc.user" value="root" />
 			<property name="javax.persistence.jdbc.password"
-				value="admin" />
+				value="adminadmin" />
 			<property name="javax.persistence.jdbc.driver"
 				value="com.mysql.cj.jdbc.Driver" />
 			<property name="hibernate.hbm2ddl.auto" value="create" />

@@ -558,7 +558,7 @@
         <div class="container">
 
             <div class="page-header">
-                <a href="expediente-detalle.jsp?id=<%= miembro.getIdMiembro() %>" class="back-btn">Volver</a>
+                <a href="ver-miembro.jsp?id=<%= miembro.getIdMiembro() %>" class="back-btn">Volver</a>
                 <h1 class="page-title">Editar Miembro</h1>
                 <p class="page-subtitle">
                     <%= miembro.getNombreCompleto() %> - Familia <%= familia.getNumeroExpediente() %>
@@ -675,7 +675,7 @@
             <!-- Zona de peligro -->
             <div class="card" style="margin-top: 2rem;">
                 <div class="danger-zone">
-                    <h3 class="danger-zone-title">⚠️ Zona de Peligro</h3>
+                    <h3 class="danger-zone-title">Zona de Peligro</h3>
                     <p class="danger-zone-text">
                         Eliminar este miembro es una acción permanente. El registro se eliminará de la base de datos y no se podrá recuperar.
                     </p>

@@ -1,11 +1,16 @@
 <%-- 
-    Document   : crear-expediente
-    Created on : Dec 15, 2025, 5:15:44 PM
-    Author     : Jaime
+    Document   : editar-expediente
+    Created on :  Dec 16, 2025
+    Author     : Esteban
 --%>
 
 <%@page import="edu.ulatina.controller.FamiliaController"%>
+<%@page import="edu.ulatina.controller.ExpedienteController"%>
+<%@page import="edu.ulatina.controller.MiembroFamiliaController"%>
 <%@page import="edu.ulatina.model.Familia"%>
+<%@page import="edu.ulatina.model. Expediente"%>
+<%@page import="edu.ulatina.model.MiembroFamilia"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%
@@ -13,11 +18,46 @@
     String mensajeExito = null;
     String mensajeError = null;
     
-    // Verificar si es POST (envío del formulario)
+    // Obtener el ID del expediente
+    String idExpedienteStr = request.getParameter("id");
+    
+    if (idExpedienteStr == null || idExpedienteStr.trim().isEmpty()) {
+        response.sendRedirect("expedientes.jsp");
+        return;
+    }
+    
+    Integer idExpediente = null;
+    try {
+        idExpediente = Integer.parseInt(idExpedienteStr);
+    } catch (NumberFormatException e) {
+        response.sendRedirect("expedientes. jsp");
+        return;
+    }
+    
+    // Controladores
+    ExpedienteController expedienteController = new ExpedienteController();
+    FamiliaController familiaController = new FamiliaController();
+    MiembroFamiliaController miembroController = new MiembroFamiliaController();
+    
+    // Cargar expediente
+    Expediente expediente = expedienteController.buscarPorId(idExpediente);
+    
+    if (expediente == null) {
+        response.sendRedirect("expedientes. jsp");
+        return;
+    }
+    
+    // Obtener familia y jefe de familia
+    Familia familia = expediente.getFamilia();
+    MiembroFamilia jefeFamilia = miembroController.buscarJefeFamilia(familia.getIdFamilia());
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    
+    // Verificar si es POST (envío del formulario de actualización)
     if ("POST".equalsIgnoreCase(request.getMethod())) {
         try {
             // ============================================
-            // PROCESAR FORMULARIO
+            // PROCESAR FORMULARIO DE ACTUALIZACIÓN
             // ============================================
             
             // SECCIÓN 1: INFORMACIÓN PERSONAL
@@ -39,7 +79,7 @@
             String tipoVivienda = request.getParameter("tipoVivienda");
             
             // Construir dirección completa
-            String direccionCompleta = String.format("%s, %s, %s. %s", 
+            String direccionCompleta = String.format("%s, %s, %s.  %s", 
                 provincia, canton, distrito, direccionExacta);
             
             // SECCIÓN 3: INFORMACIÓN FAMILIAR Y SOCIOECONÓMICA
@@ -49,16 +89,15 @@
             // Convertir número de personas a Integer
             Integer cantidadMiembros;
             try {
-                cantidadMiembros = Integer.parseInt(numeroPersonasHogar);
+                cantidadMiembros = Integer. parseInt(numeroPersonasHogar);
             } catch (Exception e) {
                 cantidadMiembros = 0;
             }
             
-            Familia.TipoVivienda tipoViviendaEnum = Familia.TipoVivienda.valueOf(tipoVivienda.toUpperCase());
-
+            Familia. TipoVivienda tipoViviendaEnum = Familia.TipoVivienda.valueOf(tipoVivienda. toUpperCase());
             
             // Determinar situación económica
-            Familia.SituacionEconomica situacionEconomica = Familia.SituacionEconomica.BAJA;
+            Familia.SituacionEconomica situacionEconomica = Familia.SituacionEconomica. BAJA;
             try {
                 String ingresoLimpio = ingresoMensual.replaceAll("[^0-9]", "");
                 double ingreso = Double.parseDouble(ingresoLimpio);
@@ -73,7 +112,7 @@
                     situacionEconomica = Familia.SituacionEconomica.ESTABLE;
                 }
             } catch (Exception e) {
-                situacionEconomica = Familia.SituacionEconomica.BAJA;
+                situacionEconomica = Familia.SituacionEconomica. BAJA;
             }
             
             // SECCIÓN 4: INFORMACIÓN DE SOLICITUD DE AYUDA
@@ -125,58 +164,156 @@
                     break;
             }
             
-            // Generar número de expediente
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyyMMdd");
-            String fecha = sdf.format(new java.util.Date());
-            int random = (int) (Math.random() * 999999);
-            String numeroExpediente = String.format("EXP-%s-%06d", fecha, random);
-            
             // VALIDACIONES
             if (nombre == null || nombre.trim().isEmpty() ||
-                primerApellido == null || primerApellido.trim().isEmpty() ||
+                primerApellido == null || primerApellido. trim().isEmpty() ||
                 segundoApellido == null || segundoApellido.trim().isEmpty() ||
                 cedula == null || cedula.trim().isEmpty()) {
                 
                 mensajeError = "Todos los campos obligatorios deben ser completados";
             } else {
-                // CREAR FAMILIA COMPLETA
-                FamiliaController familiaController = new FamiliaController();
+                // ACTUALIZAR FAMILIA
+                String nombreCompletoJefe = nombre + " " + primerApellido + " " + segundoApellido;
                 
-                Familia familia = familiaController.registrarFamiliaCompleta(
-                    idParroquia,
-                    numeroExpediente,
-                    direccionCompleta,
-                    telefono,
-                    situacionEconomica,
-                    observaciones,
-                    motivoSolicitud,
-                    cantidadMiembros,
-                    idTipoAyuda,
-                    nombre,
-                    primerApellido,
-                    segundoApellido,
-                    cedula,
-                    fechaNacimiento,
-                    genero,
-                    estadoCivil,
-                    email,
-                    tipoViviendaEnum
-                );
+                familia.setNombreJefeFamilia(nombreCompletoJefe);
+                familia.setIdentificacionJefe(cedula);
+                familia. setDireccion(direccionCompleta);
+                familia.setTelefono(telefono);
+                familia.setSituacionEconomica(situacionEconomica);
+                familia. setObservaciones(observaciones);
+                familia.setCantidadMiembros(cantidadMiembros);
+                familia.setTipoVivienda(tipoViviendaEnum);
+                
+                // Actualizar parroquia si cambió
+                if (!familia.getParroquia().getIdParroquia().equals(idParroquia)) {
+                    edu.ulatina.dao.ParroquiaDAO parroquiaDAO = new edu.ulatina.dao.ParroquiaDAO();
+                    edu.ulatina.model. Parroquia nuevaParroquia = parroquiaDAO.findById(idParroquia);
+                    if (nuevaParroquia != null) {
+                        familia.setParroquia(nuevaParroquia);
+                    }
+                }
+                
+                // Actualizar tipo de ayuda si cambió
+                if (idTipoAyuda != null) {
+                    edu.ulatina.dao.TipoAyudaDAO tipoAyudaDAO = new edu.ulatina.dao. TipoAyudaDAO();
+                    edu.ulatina.model.TipoAyuda nuevoTipoAyuda = tipoAyudaDAO. findById(idTipoAyuda);
+                    if (nuevoTipoAyuda != null) {
+                        familia.setTipoAyuda(nuevoTipoAyuda);
+                    }
+                }
+                
+                familia = familiaController.actualizarFamilia(familia);
+                
+                // ACTUALIZAR JEFE DE FAMILIA
+                if (jefeFamilia != null) {
+                    jefeFamilia.setNombre(nombre);
+                    jefeFamilia.setPrimerApellido(primerApellido);
+                    jefeFamilia. setSegundoApellido(segundoApellido);
+                    jefeFamilia.setIdentificacion(cedula);
+                    
+                    // Convertir fecha de nacimiento
+                    try {
+                        java.util. Date fechaNac = sdf.parse(fechaNacimiento);
+                        jefeFamilia.setFechaNacimiento(fechaNac);
+                    } catch (Exception e) {
+                        System.err.println("Error al parsear fecha:  " + e.getMessage());
+                    }
+                    
+                    // Convertir género
+                    if (genero != null) {
+                        switch (genero.toLowerCase()) {
+                            case "masculino":
+                                jefeFamilia.setGenero(MiembroFamilia. Genero.MASCULINO);
+                                break;
+                            case "femenino":
+                                jefeFamilia.setGenero(MiembroFamilia.Genero.FEMENINO);
+                                break;
+                            case "otro": 
+                                jefeFamilia. setGenero(MiembroFamilia.Genero. OTRO);
+                                break;
+                        }
+                    }
+                    
+                    jefeFamilia. setEstadoCivil(estadoCivil);
+                    jefeFamilia.setTelefono(telefono);
+                    jefeFamilia.setEmail(email);
+                    
+                    miembroController.actualizarMiembro(jefeFamilia);
+                }
+                
+                // ACTUALIZAR EXPEDIENTE
+                expediente.setMotivoApertura(motivoSolicitud);
+                expedienteController.actualizarExpediente(expediente);
                 
                 if (familia != null) {
-                    // Éxito - redirigir a expedientes
+                    // Éxito - redirigir a detalle del expediente
                     session.setAttribute("mensajeExito", 
-                        "Expediente creado exitosamente: " + numeroExpediente);
-                    response.sendRedirect("expedientes.jsp");
+                        "Expediente actualizado exitosamente:  " + familia.getNumeroExpediente());
+                    response.sendRedirect("expediente-detalle.jsp?id=" + idExpediente);
                     return;
                 } else {
-                    mensajeError = "Error al crear el expediente. Intente nuevamente.";
+                    mensajeError = "Error al actualizar el expediente.  Intente nuevamente. ";
                 }
             }
             
         } catch (Exception e) {
             e.printStackTrace();
             mensajeError = "Error del sistema: " + e.getMessage();
+        }
+    }
+    
+    // Preparar valores para el formulario
+    String[] direccionPartes = familia.getDireccion() != null ? familia.getDireccion().split(",") : new String[]{"", "", "", ""};
+    String provincia = direccionPartes. length > 0 ? direccionPartes[0]. trim() : "";
+    String canton = direccionPartes.length > 1 ? direccionPartes[1].trim() : "";
+    String distrito = direccionPartes.length > 2 ? direccionPartes[2].trim().split("\\.")[0].trim() : "";
+    String direccionExacta = direccionPartes.length > 2 && direccionPartes[2].contains(".") ? 
+                             direccionPartes[2].substring(direccionPartes[2]. indexOf(".") + 1).trim() : "";
+    
+    // Obtener el valor de parroquia para el select
+    String parroquiaValue = "";
+    if (familia.getParroquia() != null) {
+        switch (familia.getParroquia().getIdParroquia()) {
+            case 1:
+                parroquiaValue = "santiago-apostol";
+                break;
+            case 2:
+                parroquiaValue = "san-nicolas";
+                break;
+            case 3:
+                parroquiaValue = "inmaculada-concepcion";
+                break;
+            case 4:
+                parroquiaValue = "nuestra-senora-pilar";
+                break;
+        }
+    }
+    
+    // Obtener el valor de tipo de ayuda para el select
+    String tipoAyudaValue = "";
+    if (familia.getTipoAyuda() != null) {
+        switch (familia.getTipoAyuda().getIdTipoAyuda()) {
+            case 1:
+                tipoAyudaValue = "alimentaria";
+                break;
+            case 2:
+                tipoAyudaValue = "medicamentos";
+                break;
+            case 3:
+                tipoAyudaValue = "vivienda";
+                break;
+            case 4:
+                tipoAyudaValue = "educacion";
+                break;
+            case 5:
+                tipoAyudaValue = "servicios";
+                break;
+            case 6:
+                tipoAyudaValue = "vestimenta";
+                break;
+            case 7:
+                tipoAyudaValue = "otra";
+                break;
         }
     }
 %>
@@ -186,7 +323,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Crear Expediente - Sistema Pastoral Social</title>
+        <title>Editar Expediente - Sistema Pastoral Social</title>
         <style>
             :root {
                 --color-bg: #F7F4EE;
@@ -194,7 +331,7 @@
                 --color-primary-dark: #1B3146;
                 --color-accent: #C9A568;
                 --color-border: #E5DED0;
-                --color-text: #1F2933;
+                --color-text:  #1F2933;
                 --color-muted: #6B7280;
             }
 
@@ -205,10 +342,10 @@
             }
 
             body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+                font-family:  -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
                     'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
                     'Helvetica Neue', sans-serif;
-                background: var(--color-bg);
+                background:  var(--color-bg);
                 display: flex;
                 min-height: 100vh;
                 color: var(--color-text);
@@ -224,7 +361,7 @@
                 position: fixed;
                 height: 100vh;
                 left: 0;
-                top: 0;
+                top:  0;
                 overflow-y: auto;
             }
 
@@ -233,7 +370,7 @@
                 align-items: center;
                 gap: 1rem;
                 margin-bottom: 1.6rem;
-                padding: 0.5rem 0.5rem 1rem;
+                padding:  0.5rem 0.5rem 1rem;
                 border-bottom: 1px solid var(--color-border);
             }
 
@@ -248,7 +385,7 @@
                 position: relative;
                 color: #FFFFFF;
                 font-size: 24px;
-                font-weight: bold;
+                font-weight:  bold;
                 box-shadow: 0 5px 20px rgba(15, 23, 42, 0.22);
             }
 
@@ -265,7 +402,7 @@
             }
 
             .logo::after {
-                width: 20px;
+                width:  20px;
                 height: 4px;
             }
 
@@ -273,14 +410,14 @@
                 font-size: 1.125rem;
                 font-weight: 600;
                 color: #111827;
-                margin: 0;
+                margin:  0;
                 letter-spacing: 0.02em;
             }
 
             .brand-text p {
                 font-size: 0.75rem;
                 color: var(--color-muted);
-                margin: 0;
+                margin:  0;
             }
 
             .nav-menu {
@@ -322,7 +459,7 @@
                 position: fixed;
                 top: 0;
                 right: 0;
-                left: 280px;
+                left:  280px;
                 background: rgba(255, 255, 255, 0.96);
                 backdrop-filter: blur(6px);
                 border-bottom: 1px solid var(--color-border);
@@ -347,7 +484,7 @@
             }
 
             .nav-actions a:hover {
-                color: var(--color-primary);
+                color:  var(--color-primary);
                 text-decoration: underline;
             }
 
@@ -397,6 +534,7 @@
                 box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
                 transition: background-color 0.2s ease, box-shadow 0.2s ease, transform
                     0.1s ease;
+                text-decoration: none;
             }
 
             .back-btn::before {
@@ -419,7 +557,7 @@
                 background: #FFFFFF;
                 border-radius: 12px;
                 padding: 1.5rem 1.4rem 1.4rem;
-                box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+                box-shadow:  0 12px 30px rgba(15, 23, 42, 0.06);
                 border: 1px solid var(--color-border);
                 margin-bottom: 1.4rem;
             }
@@ -428,7 +566,7 @@
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
-                margin-bottom: 0.4rem;
+                margin-bottom:  0.4rem;
             }
 
             .card-title {
@@ -466,15 +604,15 @@
                 font-size: 0.85rem;
                 font-weight: 500;
                 color: #374151;
-                margin-bottom: 0.45rem;
+                margin-bottom:  0.45rem;
             }
 
             input, select, textarea {
-                width: 100%;
+                width:  100%;
                 padding: 0.55rem 0.9rem;
                 border: 1px solid #D1D5DB;
                 border-radius: 10px;
-                font-size: 0.87rem;
+                font-size:  0.87rem;
                 font-family: inherit;
                 background: #FDFBF7;
                 transition: border-color 0.2s ease, box-shadow 0.2s ease,
@@ -500,7 +638,7 @@
 
             .btn {
                 flex: 1;
-                padding: 0.7rem 1rem;
+                padding:  0.7rem 1rem;
                 border-radius: 999px;
                 border: none;
                 font-size: 0.9rem;
@@ -512,6 +650,7 @@
                 gap: 0.45rem;
                 transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s
                     ease, transform 0.1s ease;
+                text-decoration: none;
             }
 
             .btn-primary {
@@ -538,8 +677,8 @@
 
             .alert {
                 padding: 1rem 1.2rem;
-                border-radius: 10px;
-                margin-bottom: 1.5rem;
+                border-radius:  10px;
+                margin-bottom:  1.5rem;
                 font-weight: 500;
             }
 
@@ -551,15 +690,15 @@
 
             .alert-success {
                 background: #D1FAE5;
-                border: 1px solid #10B981;
+                border:  1px solid #10B981;
                 color: #059669;
             }
 
-            @media ( max-width : 768px) {
+            @media ( max-width :  768px) {
                 .sidebar {
                     width: 100%;
                     position: relative;
-                    height: auto;
+                    height:  auto;
                 }
                 .top-navbar {
                     left: 0;
@@ -606,11 +745,10 @@
 
             <div class="container">
                 <div class="page-header">
-                    <button class="back-btn"
-                            onclick="window.location.href = 'expedientes.jsp'">Volver</button>
+                    <a href="expediente-detalle.jsp? id=<%= idExpediente %>" class="back-btn">Volver</a>
                     <div>
-                        <h1 class="page-title">Crear Nuevo Expediente</h1>
-                        <p class="page-subtitle">Registro de beneficiario</p>
+                        <h1 class="page-title">Editar Expediente</h1>
+                        <p class="page-subtitle">Expediente <%= familia.getNumeroExpediente() %></p>
                     </div>
                 </div>
 
@@ -633,17 +771,23 @@
                             <div class="form-group">
                                 <label for="nombre">Nombre</label> 
                                 <input type="text" id="nombre" name="nombre" 
-                                       placeholder="Nombre" required>
+                                       placeholder="Nombre" 
+                                       value="<%= jefeFamilia != null ? jefeFamilia. getNombre() : "" %>" 
+                                       required>
                             </div>
                             <div class="form-group">
                                 <label for="primerApellido">Primer Apellido</label> 
                                 <input type="text" id="primerApellido" name="primerApellido"
-                                       placeholder="Primer Apellido" required>
+                                       placeholder="Primer Apellido" 
+                                       value="<%= jefeFamilia != null ? jefeFamilia.getPrimerApellido() : "" %>" 
+                                       required>
                             </div>
                             <div class="form-group">
                                 <label for="segundoApellido">Segundo Apellido</label> 
                                 <input type="text" id="segundoApellido" name="segundoApellido"
-                                       placeholder="Segundo Apellido" required>
+                                       placeholder="Segundo Apellido" 
+                                       value="<%= jefeFamilia != null ? jefeFamilia.getSegundoApellido() : "" %>" 
+                                       required>
                             </div>
                         </div>
 
@@ -651,19 +795,23 @@
                             <div class="form-group">
                                 <label for="cedula">Cédula</label> 
                                 <input type="text" id="cedula" name="cedula" 
-                                       placeholder="1-0234-0567" required>
+                                       placeholder="1-0234-0567" 
+                                       value="<%= familia.getIdentificacionJefe() %>" 
+                                       required>
                             </div>
                             <div class="form-group">
                                 <label for="fechaNacimiento">Fecha de Nacimiento</label> 
-                                <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+                                <input type="date" id="fechaNacimiento" name="fechaNacimiento" 
+                                       value="<%= jefeFamilia != null ? sdf.format(jefeFamilia.getFechaNacimiento()) : "" %>" 
+                                       required>
                             </div>
                             <div class="form-group">
                                 <label for="genero">Género</label> 
                                 <select id="genero" name="genero" required>
                                     <option value="">Seleccione</option>
-                                    <option value="masculino">Masculino</option>
-                                    <option value="femenino">Femenino</option>
-                                    <option value="otro">Otro</option>
+                                    <option value="masculino" <%= jefeFamilia != null && jefeFamilia.getGenero() == MiembroFamilia. Genero.MASCULINO ? "selected" : "" %>>Masculino</option>
+                                    <option value="femenino" <%= jefeFamilia != null && jefeFamilia.getGenero() == MiembroFamilia.Genero. FEMENINO ? "selected" : "" %>>Femenino</option>
+                                    <option value="otro" <%= jefeFamilia != null && jefeFamilia.getGenero() == MiembroFamilia.Genero.OTRO ?  "selected" : "" %>>Otro</option>
                                 </select>
                             </div>
                         </div>
@@ -673,22 +821,25 @@
                                 <label for="estadoCivil">Estado Civil</label> 
                                 <select id="estadoCivil" name="estadoCivil" required>
                                     <option value="">Seleccione</option>
-                                    <option value="soltero">Soltero(a)</option>
-                                    <option value="casado">Casado(a)</option>
-                                    <option value="union-libre">Unión Libre</option>
-                                    <option value="divorciado">Divorciado(a)</option>
-                                    <option value="viudo">Viudo(a)</option>
+                                    <option value="soltero" <%= jefeFamilia != null && "soltero".equals(jefeFamilia.getEstadoCivil()) ? "selected" : "" %>>Soltero(a)</option>
+                                    <option value="casado" <%= jefeFamilia != null && "casado".equals(jefeFamilia.getEstadoCivil()) ? "selected" : "" %>>Casado(a)</option>
+                                    <option value="union-libre" <%= jefeFamilia != null && "union-libre". equals(jefeFamilia. getEstadoCivil()) ? "selected" : "" %>>Unión Libre</option>
+                                    <option value="divorciado" <%= jefeFamilia != null && "divorciado".equals(jefeFamilia.getEstadoCivil()) ? "selected" : "" %>>Divorciado(a)</option>
+                                    <option value="viudo" <%= jefeFamilia != null && "viudo".equals(jefeFamilia.getEstadoCivil()) ? "selected" : "" %>>Viudo(a)</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="telefono">Teléfono</label> 
                                 <input type="tel" id="telefono" name="telefono" 
-                                       placeholder="8888-8888" required>
+                                       placeholder="8888-8888" 
+                                       value="<%= familia.getTelefono() != null ? familia.getTelefono() : "" %>" 
+                                       required>
                             </div>
                             <div class="form-group">
                                 <label for="email">Correo Electrónico</label> 
                                 <input type="email" id="email" name="email" 
-                                       placeholder="correo@ejemplo.com">
+                                       placeholder="correo@ejemplo.com"
+                                       value="<%= jefeFamilia != null && jefeFamilia.getEmail() != null ? jefeFamilia.getEmail() : "" %>">
                             </div>
                         </div>
                     </div>
@@ -705,37 +856,41 @@
                                 <label for="provincia">Provincia</label> 
                                 <select id="provincia" name="provincia" required>
                                     <option value="">Seleccione</option>
-                                    <option value="cartago">Cartago</option>
-                                    <option value="san-jose">San José</option>
-                                    <option value="alajuela">Alajuela</option>
+                                    <option value="Cartago" <%= "Cartago".equalsIgnoreCase(provincia) ? "selected" : "" %>>Cartago</option>
+                                    <option value="San José" <%= "San José".equalsIgnoreCase(provincia) ? "selected" : "" %>>San José</option>
+                                    <option value="Alajuela" <%= "Alajuela". equalsIgnoreCase(provincia) ? "selected" : "" %>>Alajuela</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="canton">Cantón</label> 
                                 <input type="text" id="canton" name="canton" 
-                                       placeholder="Cantón" required>
+                                       placeholder="Cantón" 
+                                       value="<%= canton %>" 
+                                       required>
                             </div>
                             <div class="form-group">
                                 <label for="distrito">Distrito</label> 
                                 <input type="text" id="distrito" name="distrito" 
-                                       placeholder="Distrito" required>
+                                       placeholder="Distrito" 
+                                       value="<%= distrito %>" 
+                                       required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="direccionExacta">Dirección Exacta</label>
                             <textarea id="direccionExacta" name="direccionExacta" rows="3"
-                                      placeholder="Ingrese la dirección exacta del domicilio" required></textarea>
+                                      placeholder="Ingrese la dirección exacta del domicilio" required><%= direccionExacta %></textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="tipoVivienda">Tipo de Vivienda</label> 
                             <select id="tipoVivienda" name="tipoVivienda" required>
                                 <option value="">Seleccione</option>
-                                <option value="propia">Propia</option>
-                                <option value="alquilada">Alquilada</option>
-                                <option value="prestada">Prestada</option>
-                                <option value="precario">Precario</option>
+                                <option value="propia" <%= familia.getTipoVivienda() == Familia.TipoVivienda.PROPIA ? "selected" : "" %>>Propia</option>
+                                <option value="alquilada" <%= familia.getTipoVivienda() == Familia.TipoVivienda. ALQUILADA ? "selected" : "" %>>Alquilada</option>
+                                <option value="prestada" <%= familia.getTipoVivienda() == Familia.TipoVivienda. PRESTADA ? "selected" : "" %>>Prestada</option>
+                                <option value="precario" <%= familia.getTipoVivienda() == Familia.TipoVivienda.PRECARIO ? "selected" : "" %>>Precario</option>
                             </select>
                         </div>
                     </div>
@@ -751,7 +906,10 @@
                             <div class="form-group">
                                 <label for="numeroPersonasHogar">Personas en el Hogar</label> 
                                 <input type="text" id="numeroPersonasHogar"
-                                       name="numeroPersonasHogar" placeholder="0" required>
+                                       name="numeroPersonasHogar" 
+                                       placeholder="0" 
+                                       value="<%= familia.getCantidadMiembros() != null ? familia.getCantidadMiembros() : 0 %>" 
+                                       required>
                             </div>
                             <div class="form-group">
                                 <label for="ingresoMensual">Ingreso Mensual Aprox.</label> 
@@ -773,29 +931,23 @@
                                 <label for="parroquia">Parroquia de Referencia</label> 
                                 <select id="parroquia" name="parroquia" required>
                                     <option value="">Seleccione una parroquia</option>
-                                    <option value="1">Nuestra Señora del Carmen</option>
-                                    <option value="2">Nuestra Señora de Guadalupe</option>
-                                    <option value="3">Nuestra Señora de los Ángeles</option>
-                                    <option value="4">Dulce Nombre de Jesús</option>
-                                    <option value="5">María Auxiliadora</option>
-                                    <option value="6">San Esteban Protomártir</option>
-                                    <option value="7">San Blas Obispo y Mártir</option>
-                                    <option value="8">San Nicolás de Tolentino</option>
-                                    <option value="9">San Rafael Arcángel</option>
-                                    <option value="10">Inmaculada Concepción de María</option>
+                                    <option value="santiago-apostol" <%= "santiago-apostol".equals(parroquiaValue) ? "selected" : "" %>>Parroquia Santiago Apóstol</option>
+                                    <option value="san-nicolas" <%= "san-nicolas".equals(parroquiaValue) ? "selected" : "" %>>Parroquia San Nicolás</option>
+                                    <option value="inmaculada-concepcion" <%= "inmaculada-concepcion".equals(parroquiaValue) ? "selected" : "" %>>Parroquia Inmaculada Concepción</option>
+                                    <option value="nuestra-senora-pilar" <%= "nuestra-senora-pilar".equals(parroquiaValue) ? "selected" : "" %>>Parroquia Nuestra Señora del Pilar</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="tipoAyudaSolicitada">Tipo de Ayuda Solicitada</label>
                                 <select id="tipoAyudaSolicitada" name="tipoAyudaSolicitada" required>
                                     <option value="">Seleccione</option>
-                                    <option value="alimentaria">Ayuda Alimentaria</option>
-                                    <option value="medicamentos">Medicamentos</option>
-                                    <option value="vivienda">Vivienda</option>
-                                    <option value="educacion">Educación</option>
-                                    <option value="servicios">Servicios Básicos</option>
-                                    <option value="vestimenta">Vestimenta</option>
-                                    <option value="otra">Otra</option>
+                                    <option value="alimentaria" <%= "alimentaria".equals(tipoAyudaValue) ? "selected" : "" %>>Ayuda Alimentaria</option>
+                                    <option value="medicamentos" <%= "medicamentos".equals(tipoAyudaValue) ? "selected" : "" %>>Medicamentos</option>
+                                    <option value="vivienda" <%= "vivienda".equals(tipoAyudaValue) ? "selected" : "" %>>Vivienda</option>
+                                    <option value="educacion" <%= "educacion".equals(tipoAyudaValue) ? "selected" : "" %>>Educación</option>
+                                    <option value="servicios" <%= "servicios".equals(tipoAyudaValue) ? "selected" : "" %>>Servicios Básicos</option>
+                                    <option value="vestimenta" <%= "vestimenta".equals(tipoAyudaValue) ? "selected" : "" %>>Vestimenta</option>
+                                    <option value="otra" <%= "otra".equals(tipoAyudaValue) ? "selected" : "" %>>Otra</option>
                                 </select>
                             </div>
                         </div>
@@ -804,24 +956,23 @@
                             <label for="motivoSolicitud">Motivo de la Solicitud</label>
                             <textarea id="motivoSolicitud" name="motivoSolicitud" rows="3"
                                       placeholder="Describa brevemente la situación que motiva la solicitud de ayuda"
-                                      required></textarea>
+                                      required><%= expediente.getMotivoApertura() != null ? expediente.getMotivoApertura() : "" %></textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="observaciones">Observaciones Adicionales</label>
                             <textarea id="observaciones" name="observaciones" rows="3"
-                                      placeholder="Información adicional relevante para el expediente"></textarea>
+                                      placeholder="Información adicional relevante para el expediente"><%= familia.getObservaciones() != null ? familia.getObservaciones() : "" %></textarea>
                         </div>
                     </div>
 
                     <!-- Botones de Acción -->
                     <div class="btn-group">
-                        <button type="button" class="btn btn-secondary"
-                                onclick="window.location.href = 'expedientes.jsp'">
+                        <a href="expediente-detalle.jsp?id=<%= idExpediente %>" class="btn btn-secondary">
                             Cancelar
-                        </button>
+                        </a>
                         <button type="submit" class="btn btn-primary">
-                            Guardar Expediente
+                            Guardar Cambios
                         </button>
                     </div>
                 </form>

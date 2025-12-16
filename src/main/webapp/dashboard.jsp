@@ -1,10 +1,54 @@
-<%-- 
-    Document   : dashboard
-    Created on : Dec 15, 2025, 5:16:05 PM
-    Author     : Jaime
---%>
-
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.*"%>
+<%@page import="edu.ulatina.controller.*"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%
+    // Crear controlador de dashboard
+    DashboardController dashboardController = new DashboardController();
+
+    // Obtener estadísticas
+    Map<String, Long> estadisticas = dashboardController.obtenerEstadisticas();
+
+    // Obtener actividades recientes
+    List<Map<String, Object>> actividades = dashboardController.obtenerActividadesRecientes(5);
+
+    // Obtener distribución por parroquias
+    List<Map<String, Object>> distribucionParroquias = dashboardController.obtenerDistribucionParroquias();
+
+    // Formato de fecha
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+    // Función para calcular tiempo relativo
+
+%>
+
+<%!
+    // Función para calcular tiempo relativo
+    String getRelativeTime(Date fecha) {
+        if (fecha == null) {
+            return "Fecha desconocida";
+        }
+
+        long diff = new Date().getTime() - fecha.getTime();
+        long horas = diff / (60 * 60 * 1000);
+        long dias = diff / (24 * 60 * 60 * 1000);
+
+        if (horas < 1) {
+            return "Hace menos de 1 hora";
+        }
+        if (horas == 1) {
+            return "Hace 1 hora";
+        }
+        if (horas < 24) {
+            return "Hace " + horas + " horas";
+        }
+        if (dias == 1) {
+            return "Hace 1 día";
+        }
+        return "Hace " + dias + " días";
+    }
+%>
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -414,7 +458,6 @@
 
         <div class="main-content">
             <header class="top-navbar">
-
                 <div class="nav-actions">
                     <a href="usuarios.jsp">Configurar cuenta</a>
                     <a href="index.jsp">Cerrar sesión</a>
@@ -424,16 +467,16 @@
             <div class="container">
                 <div class="page-header">
                     <h1 class="page-title">Panel de Control</h1>
-                    <p class="page-subtitle">Bienvenido al Sistema de Gestión de
-                        Pastoral Social</p>
+                    <p class="page-subtitle">Bienvenido al Sistema de Gestión de Pastoral Social</p>
                 </div>
 
+                <!-- ESTADÍSTICAS DINÁMICAS -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-header">
                             <div class="stat-title">Total Beneficiarios</div>
                         </div>
-                        <div class="stat-value">248</div>
+                        <div class="stat-value"><%= estadisticas.get("totalBeneficiarios")%></div>
                         <div class="stat-description">Registrados en el sistema</div>
                     </div>
 
@@ -441,7 +484,7 @@
                         <div class="stat-header">
                             <div class="stat-title">Expedientes Activos</div>
                         </div>
-                        <div class="stat-value">142</div>
+                        <div class="stat-value"><%= estadisticas.get("expedientesActivos")%></div>
                         <div class="stat-description">En seguimiento actual</div>
                     </div>
 
@@ -449,120 +492,75 @@
                         <div class="stat-header">
                             <div class="stat-title">Ayudas Este Mes</div>
                         </div>
-                        <div class="stat-value">67</div>
-                        <div class="stat-description">Entregadas en diciembre</div>
+                        <div class="stat-value"><%= estadisticas.get("ayudasMesActual")%></div>
+                        <div class="stat-description">Entregadas en <%= new SimpleDateFormat("MMMM").format(new Date())%></div>
                     </div>
 
                     <div class="stat-card">
                         <div class="stat-header">
                             <div class="stat-title">Parroquias Activas</div>
                         </div>
-                        <div class="stat-value">8</div>
+                        <div class="stat-value"><%= estadisticas.get("parroquiasActivas")%></div>
                         <div class="stat-description">Participando en el programa</div>
                     </div>
                 </div>
 
                 <div class="content-grid">
+                    <!-- ACTIVIDADES RECIENTES DINÁMICAS -->
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">Actividades Recientes</div>
                             <div class="card-description">Últimas acciones en el sistema</div>
                         </div>
 
-                        <div class="activity-item">
-                            <div class="activity-icon">📁</div>
-                            <div class="activity-content">
-                                <div class="activity-title">Nuevo expediente creado</div>
-                                <div class="activity-beneficiary">María Rodríguez</div>
-                                <div class="activity-date">Hace 2 horas</div>
-                            </div>
-                        </div>
-
+                        <% if (actividades != null && !actividades.isEmpty()) {
+                            for (Map<String, Object> actividad : actividades) {%>
                         <div class="activity-item">
                             <div class="activity-content">
-                                <div class="activity-title">Ayuda alimentaria entregada</div>
-                                <div class="activity-beneficiary">Carlos Méndez</div>
-                                <div class="activity-date">Hace 5 horas</div>
+                                <div class="activity-title"><%= actividad.get("titulo")%></div>
+                                <div class="activity-beneficiary"><%= actividad.get("beneficiario")%></div>
+                                <div class="activity-date"><%= getRelativeTime((Date) actividad.get("fecha"))%></div>
                             </div>
                         </div>
-
+                        <% }
+                    } else { %>
                         <div class="activity-item">
                             <div class="activity-content">
-                                <div class="activity-title">Expediente actualizado</div>
-                                <div class="activity-beneficiary">Ana López</div>
-                                <div class="activity-date">Hace 1 día</div>
+                                <div class="activity-title">No hay actividades recientes</div>
                             </div>
                         </div>
-
-                        <div class="activity-item">
-                            <div class="activity-content">
-                                <div class="activity-title">Nuevo beneficiario registrado</div>
-                                <div class="activity-beneficiary">José Hernández</div>
-                                <div class="activity-date">Hace 2 días</div>
-                            </div>
-                        </div>
+                        <% } %>
                     </div>
 
+                    <!-- DISTRIBUCIÓN POR PARROQUIA DINÁMICA -->
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">Distribución por Parroquia</div>
-                            <div class="card-description">Beneficiarios por cada
-                                parroquia</div>
+                            <div class="card-description">Beneficiarios por cada parroquia</div>
                         </div>
 
+                        <% if (distribucionParroquias != null && !distribucionParroquias.isEmpty()) {
+                            for (Map<String, Object> parroquia : distribucionParroquias) {%>
                         <div class="parish-item">
                             <div class="parish-header">
-                                <span class="parish-name">Santiago Apóstol</span> <span
-                                    class="parish-count">68</span>
+                                <span class="parish-name"><%= parroquia.get("nombre")%></span>
+                                <span class="parish-count"><%= parroquia.get("cantidad")%></span>
                             </div>
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 27%"></div>
+                                <div class="progress-fill" style="width: <%= parroquia.get("porcentaje")%>%"></div>
                             </div>
                         </div>
-
+                        <% }
+                    } else { %>
                         <div class="parish-item">
                             <div class="parish-header">
-                                <span class="parish-name">San Nicolás</span> <span
-                                    class="parish-count">54</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 22%"></div>
+                                <span class="parish-name">No hay datos disponibles</span>
                             </div>
                         </div>
-
-                        <div class="parish-item">
-                            <div class="parish-header">
-                                <span class="parish-name">Inmaculada Concepción</span> <span
-                                    class="parish-count">48</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 19%"></div>
-                            </div>
-                        </div>
-
-                        <div class="parish-item">
-                            <div class="parish-header">
-                                <span class="parish-name">Nuestra Señora del Pilar</span> <span
-                                    class="parish-count">42</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 17%"></div>
-                            </div>
-                        </div>
-
-                        <div class="parish-item">
-                            <div class="parish-header">
-                                <span class="parish-name">Otras parroquias</span> <span
-                                    class="parish-count">36</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 15%"></div>
-                            </div>
-                        </div>
+                        <% }%>
                     </div>
                 </div>
             </div>
         </div>
     </body>
 </html>
-

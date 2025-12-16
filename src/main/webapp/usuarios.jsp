@@ -1,7 +1,7 @@
 <%-- 
     Document   : usuarios
     Created on : Dec 15, 2025, 5:17:37 PM
-    Author     : Jaime
+    Author     :  Jaime
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -42,24 +42,24 @@
         <style>
             :root {
                 --color-bg: #F7F4EE;
-                --color-primary: #23415A;
+                --color-primary:  #23415A;
                 --color-primary-dark: #1B3146;
-                --color-accent: #C9A568;
+                --color-accent:  #C9A568;
                 --color-border: #E5DED0;
-                --color-text: #1F2933;
+                --color-text:  #1F2933;
                 --color-muted: #6B7280;
             }
 
             * {
                 margin: 0;
-                padding: 0;
+                padding:  0;
                 box-sizing: border-box;
             }
 
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
                     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-                background: var(--color-bg);
+                background:  var(--color-bg);
                 display: flex;
                 min-height: 100vh;
                 color: var(--color-text);
@@ -76,7 +76,7 @@
                 position: fixed;
                 height: 100vh;
                 left: 0;
-                top: 0;
+                top:  0;
                 overflow-y: auto;
             }
 
@@ -100,7 +100,7 @@
                 position: relative;
                 color: #FFFFFF;
                 font-size: 24px;
-                font-weight: bold;
+                font-weight:  bold;
                 box-shadow: 0 5px 20px rgba(15, 23, 42, 0.22);
             }
 
@@ -118,22 +118,22 @@
             }
 
             .logo::after {
-                width: 20px;
+                width:  20px;
                 height: 4px;
             }
 
             .brand-text h1 {
                 font-size: 1.125rem;
-                font-weight: 600;
+                font-weight:  600;
                 color: #111827;
-                margin: 0;
+                margin:  0;
                 letter-spacing: 0.02em;
             }
 
             .brand-text p {
                 font-size: 0.75rem;
                 color: var(--color-muted);
-                margin: 0;
+                margin:  0;
             }
 
             .nav-menu {
@@ -172,7 +172,7 @@
                 position: fixed;
                 top: 0;
                 right: 0;
-                left: 280px;
+                left:  280px;
                 background: rgba(255, 255, 255, 0.96);
                 backdrop-filter: blur(6px);
                 border-bottom: 1px solid var(--color-border);
@@ -213,7 +213,7 @@
             /* MAIN LAYOUT */
             .main-content {
                 margin-left: 280px;
-                flex: 1;
+                flex:  1;
                 padding-top: 80px;
             }
 
@@ -235,7 +235,7 @@
             .page-title {
                 font-size: 1.9rem;
                 color: #111827;
-                margin-bottom: 0.4rem;
+                margin-bottom:  0.4rem;
                 letter-spacing: 0.02em;
             }
 
@@ -250,8 +250,8 @@
                 color: #FFFFFF;
                 border: none;
                 border-radius: 999px;
-                font-size: 0.85rem;
-                font-weight: 500;
+                font-size:  0.85rem;
+                font-weight:  500;
                 cursor: pointer;
                 text-decoration: none;
                 display: inline-flex;
@@ -318,8 +318,8 @@
             }
 
             .filter-group {
-                display: flex;
-                flex-direction: column;
+                display:  flex;
+                flex-direction:  column;
                 gap: 0.35rem;
                 font-size: 0.85rem;
             }
@@ -332,7 +332,7 @@
             .filter-input,
             .filter-select {
                 width: 100%;
-                padding: 0.5rem 0.8rem;
+                padding:  0.5rem 0.8rem;
                 border-radius: 999px;
                 border: 1px solid #D1D5DB;
                 font-size: 0.85rem;
@@ -378,7 +378,7 @@
                 padding: 0.9rem 1rem;
                 font-size: 0.875rem;
                 color: #374151;
-                border-bottom: 1px solid #E5E7EB;
+                border-bottom:  1px solid #E5E7EB;
                 background: #FFFFFF;
             }
 
@@ -399,17 +399,17 @@
             .badge {
                 padding: 0.25rem 0.7rem;
                 border-radius: 999px;
-                font-size: 0.75rem;
+                font-size:  0.75rem;
                 font-weight: 500;
             }
 
             .badge-active {
                 background: #DCFCE7;
-                color: #166534;
+                color:  #166534;
             }
 
             .badge-inactive {
-                background: #F3F4F6;
+                background:  #F3F4F6;
                 color: #6B7280;
             }
 
@@ -421,7 +421,7 @@
 
             .badge-admin {
                 background: #FEE2E2;
-                color: #991B1B;
+                color:  #991B1B;
             }
 
             .badge-coordinador {
@@ -440,7 +440,7 @@
 
             .btn-table {
                 padding: 0.25rem 0.65rem;
-                border-radius: 999px;
+                border-radius:  999px;
                 border: 1px solid var(--color-border);
                 background: #FFFFFF;
                 font-size: 0.75rem;
@@ -456,69 +456,21 @@
                 box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
             }
 
-            /* FORMULARIO */
-            .form-group {
-                margin-bottom: 1rem;
-            }
-
-            .form-group label {
-                font-size: 0.85rem;
-                font-weight: 500;
-                color: #374151;
-                margin-bottom: 0.4rem;
-                display: block;
-            }
-
-            .form-input {
-                width: 100%;
-                padding: 0.55rem 0.9rem;
-                border-radius: 10px;
-                border: 1px solid #D1D5DB;
-                font-size: 0.87rem;
-                background: #FDFBF7;
-                transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-            }
-
-            .form-input:focus {
-                outline: none;
-                border-color: var(--color-primary);
-                box-shadow: 0 0 0 2px rgba(35, 65, 90, 0.16);
-                background: #FFFFFF;
-            }
-
-            .help-text {
-                font-size: 0.8rem;
-                color: var(--color-muted);
-                margin-top: 0.15rem;
-            }
-
-            .two-column-grid {
-                display: grid;
-                grid-template-columns: minmax(0, 2.2fr) minmax(0, 0.9fr);
-                gap: 1.5rem;
-            }
-
             .empty-state {
                 text-align: center;
                 padding: 3rem 1rem;
                 color: var(--color-muted);
             }
 
-            @media (max-width: 900px) {
-                .two-column-grid {
-                    grid-template-columns: 1fr;
-                }
-            }
-
             @media (max-width: 768px) {
                 .sidebar {
                     width: 100%;
                     position: relative;
-                    height: auto;
+                    height:  auto;
                 }
 
                 .top-navbar {
-                    left: 0;
+                    left:  0;
                     position: relative;
                 }
 
@@ -536,7 +488,7 @@
                 }
 
                 table {
-                    font-size: 0.75rem;
+                    font-size:  0.75rem;
                 }
 
                 th,
@@ -594,178 +546,121 @@
                     <div>
                         <h1 class="page-title">Usuarios y seguridad</h1>
                         <p class="page-subtitle">
-                            Administración de cuentas de acceso al sistema. Total de usuarios: <strong><%= usuarios.size() %></strong>
+                            Administración de cuentas de acceso al sistema.  Total de usuarios: <strong><%= usuarios.size() %></strong>
                         </p>
                     </div>
-                    <button class="btn btn-secondary" type="button" onclick="alert('Funcionalidad de crear usuario próximamente')">
-                        + Crear usuario
-                    </button>
+                    
                 </div>
 
-                <div class="two-column-grid">
-
-                    <!-- ADMINISTRAR USUARIOS -->
-                    <section class="card">
-                        <div class="card-header">
-                            <div>
-                                <h2 class="card-title">Administrar usuarios</h2>
-                                <p class="card-description">
-                                    Revise los usuarios registrados, sus roles y su estado. Puede activar o inactivar cuentas.
-                                </p>
-                            </div>
+                <!-- ADMINISTRAR USUARIOS -->
+                <section class="card">
+                    <div class="card-header">
+                        <div>
+                            <h2 class="card-title">Administrar usuarios</h2>
+                            <p class="card-description">
+                                Revise los usuarios registrados, sus roles y su estado.  Puede activar o inactivar cuentas.
+                            </p>
                         </div>
+                    </div>
 
-                        <div class="filters-row">
-                            <div class="filter-group">
-                                <label for="buscarUsuario">Buscar usuario</label>
-                                <input
-                                    type="text"
-                                    id="buscarUsuario"
-                                    class="filter-input"
-                                    placeholder="Nombre o usuario…">
-                            </div>
-                            <div class="filter-group">
-                                <label for="filtroRol">Rol</label>
-                                <select id="filtroRol" class="filter-select">
-                                    <option value="">Todos</option>
-                                    <option value="ADMIN">Administrador</option>
-                                    <option value="COORDINADOR">Coordinador</option>
-                                    
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label for="filtroEstadoUsuario">Estado</label>
-                                <select id="filtroEstadoUsuario" class="filter-select">
-                                    <option value="">Todos</option>
-                                    <option value="true">Activo</option>
-                                    <option value="false">Inactivo</option>
-                                </select>
-                            </div>
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label for="buscarUsuario">Buscar usuario</label>
+                            <input
+                                type="text"
+                                id="buscarUsuario"
+                                class="filter-input"
+                                placeholder="Nombre o usuario…">
                         </div>
+                        <div class="filter-group">
+                            <label for="filtroRol">Rol</label>
+                            <select id="filtroRol" class="filter-select">
+                                <option value="">Todos</option>
+                                <option value="ADMIN">Administrador</option>
+                                <option value="COORDINADOR">Coordinador</option>
+                                
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filtroEstadoUsuario">Estado</label>
+                            <select id="filtroEstadoUsuario" class="filter-select">
+                                <option value="">Todos</option>
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
 
-                        <div class="table-container">
-                            <% if (usuarios.isEmpty()) { %>
-                                <div class="empty-state">
-                                    <p>No hay usuarios registrados en el sistema.</p>
-                                </div>
-                            <% } else { %>
-                                <table id="tablaUsuarios">
-                                    <thead>
-                                        <tr>
-                                            <th>Usuario</th>
-                                            <th>Correo</th>
-                                            <th>Rol</th>
-                                            <th>Parroquia</th>
-                                            <th>Estado</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% for (Usuario u : usuarios) { 
-                                            String badgeRol = "";
-                                            switch(u.getRol()) {
-                                                case ADMIN:
-                                                    badgeRol = "badge-admin";
-                                                    break;
-                                                case COORDINADOR:
-                                                    badgeRol = "badge-coordinador";
-                                                    break;
-                                                
-                                            }
-                                        %>
-                                        <tr
-                                            data-rol="<%= u.getRol() %>"
-                                            data-estado="<%= u.getActivo() %>">
-                                            <td>
-                                                <div class="user-name"><%= u.getNombreCompleto() %></div>
-                                                <div class="user-meta">Usuario: <%= u.getNombreUsuario() %></div>
-                                            </td>
-                                            <td><%= u.getEmail() != null ? u.getEmail() : "Sin email" %></td>
-                                            <td>
-                                                <span class="badge <%= badgeRol %>">
-                                                    <%= u.getRol() %>
-                                                </span>
-                                            </td>
-                                            <td><%= u.getParroquia().getNombre() %></td>
-                                            <td>
-                                                <span class="badge <%= u.getActivo() ? "badge-active" : "badge-inactive" %> estado-badge">
-                                                    <%= u.getActivo() ? "Activo" : "Inactivo" %>
-                                                </span>
-                                            </td>
+                    <div class="table-container">
+                        <% if (usuarios.isEmpty()) { %>
+                            <div class="empty-state">
+                                <p>No hay usuarios registrados en el sistema.</p>
+                            </div>
+                        <% } else { %>
+                            <table id="tablaUsuarios">
+                                <thead>
+                                    <tr>
+                                        <th>Usuario</th>
+                                        <th>Correo</th>
+                                        <th>Rol</th>
+                                        <th>Parroquia</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for (Usuario u : usuarios) { 
+                                        String badgeRol = "";
+                                        switch(u.getRol()) {
+                                            case ADMIN:
+                                                badgeRol = "badge-admin";
+                                                break;
+                                            case COORDINADOR: 
+                                                badgeRol = "badge-coordinador";
+                                                break;
                                             
-                                            <td class="acciones-cell">
-                                                <form action="usuarios.jsp" method="post" style="display:inline;">
-                                                    <input type="hidden" name="accion" value="toggle">
-                                                    <input type="hidden" name="idUsuario" value="<%= u.getIdUsuario() %>">
-                                                    <button class="btn-table" type="submit">
-                                                        <%= u.getActivo() ? "Desactivar" : "Activar" %>
-                                                    </button>
-                                                </form>
-                                                
-                                                
-                                                <button class="btn-table btn-reset-pass" type="button">Restablecer clave</button>
-                                            </td>
+                                        }
+                                    %>
+                                    <tr
+                                        data-rol="<%= u.getRol() %>"
+                                        data-estado="<%= u.getActivo() %>">
+                                        <td>
+                                            <div class="user-name"><%= u.getNombreCompleto() %></div>
+                                            <div class="user-meta">Usuario: <%= u.getNombreUsuario() %></div>
+                                        </td>
+                                        <td><%= u.getEmail() != null ? u.getEmail() : "Sin email" %></td>
+                                        <td>
+                                            <span class="badge <%= badgeRol %>">
+                                                <%= u.getRol() %>
+                                            </span>
+                                        </td>
+                                        <td><%= u.getParroquia().getNombre() %></td>
+                                        <td>
+                                            <span class="badge <%= u.getActivo() ? "badge-active" : "badge-inactive" %> estado-badge">
+                                                <%= u. getActivo() ? "Activo" : "Inactivo" %>
+                                            </span>
+                                        </td>
+                                        
+                                        <td class="acciones-cell">
+                                            <form action="usuarios.jsp" method="post" style="display:inline;">
+                                                <input type="hidden" name="accion" value="toggle">
+                                                <input type="hidden" name="idUsuario" value="<%= u.getIdUsuario() %>">
+                                                <button class="btn-table" type="submit">
+                                                    <%= u.getActivo() ? "Desactivar" : "Activar" %>
+                                                </button>
+                                            </form>
                                             
-                                        </tr>
-                                        <% } %>
-                                    </tbody>
-                                </table>
-                            <% } %>
-                        </div>
-                    </section>
-
-                    <!-- CAMBIAR CONTRASEÑA -->
-                    <section class="card">
-                        <div class="card-header">
-                            <div>
-                                <h2 class="card-title">Cambiar contraseña</h2>
-                                <p class="card-description">
-                                    Actualice su contraseña personal de acceso al sistema. Por seguridad, se recomienda
-                                    cambiarla periódicamente.
-                                </p>
-                            </div>
-                        </div>
-
-                        <form id="formCambiarClave" onsubmit="return validarCambioPassword(event)">
-                            <div class="form-group">
-                                <label for="claveActual">Contraseña actual</label>
-                                <input
-                                    type="password"
-                                    id="claveActual"
-                                    name="claveActual"
-                                    class="form-input"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="nuevaClave">Nueva contraseña</label>
-                                <input
-                                    type="password"
-                                    id="nuevaClave"
-                                    name="nuevaClave"
-                                    class="form-input"
-                                    required>
-                                <p class="help-text">
-                                    Use al menos 8 caracteres, combinando letras y números.
-                                </p>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="confirmarClave">Confirmar nueva contraseña</label>
-                                <input
-                                    type="password"
-                                    id="confirmarClave"
-                                    name="confirmarClave"
-                                    class="form-input"
-                                    required>
-                            </div>
-
-                            <button type="submit" class="btn">
-                                Guardar cambios
-                            </button>
-                        </form>
-                    </section>
-                </div>
+                                            
+                                            
+                                        </td>
+                                        
+                                    </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        <% } %>
+                    </div>
+                </section>
 
             </div>
         </main>
@@ -778,17 +673,17 @@
             const filasUsuarios = Array.from(document.querySelectorAll('#tablaUsuarios tbody tr'));
 
             function aplicarFiltrosUsuarios() {
-                const texto = buscarUsuario.value.trim().toLowerCase();
+                const texto = buscarUsuario.value. trim().toLowerCase();
                 const rol = filtroRol.value;
                 const estado = filtroEstadoUsuario.value;
 
                 filasUsuarios.forEach(fila => {
                     const contenido = fila.textContent.toLowerCase();
                     const rolFila = fila.getAttribute('data-rol');
-                    const estadoFila = fila.getAttribute('data-estado');
+                    const estadoFila = fila. getAttribute('data-estado');
 
                     const coincideTexto = contenido.includes(texto);
-                    const coincideRol = !rol || rol === rolFila;
+                    const coincideRol = ! rol || rol === rolFila;
                     const coincideEstado = !estado || estado === estadoFila;
 
                     if (coincideTexto && coincideRol && coincideEstado) {
@@ -800,36 +695,8 @@
             }
 
             buscarUsuario.addEventListener('input', aplicarFiltrosUsuarios);
-            filtroRol.addEventListener('change', aplicarFiltrosUsuarios);
+            filtroRol. addEventListener('change', aplicarFiltrosUsuarios);
             filtroEstadoUsuario.addEventListener('change', aplicarFiltrosUsuarios);
-
-            // --- VALIDAR CAMBIO DE CONTRASEÑA ---
-            function validarCambioPassword(e) {
-                e.preventDefault();
-
-                const actual = document.getElementById('claveActual').value;
-                const nueva = document.getElementById('nuevaClave').value;
-                const confirmar = document.getElementById('confirmarClave').value;
-
-                if (!actual || !nueva || !confirmar) {
-                    alert('Por favor complete todos los campos.');
-                    return false;
-                }
-
-                if (nueva.length < 8) {
-                    alert('La nueva contraseña debe tener al menos 8 caracteres.');
-                    return false;
-                }
-
-                if (nueva !== confirmar) {
-                    alert('La nueva contraseña y la confirmación no coinciden.');
-                    return false;
-                }
-
-                alert('Funcionalidad de cambio de contraseña próximamente.\n\nDatos ingresados correctamente.');
-                document.getElementById('formCambiarClave').reset();
-                return false;
-            }
         </script>
     </body>
 </html>
