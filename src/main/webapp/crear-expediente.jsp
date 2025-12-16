@@ -38,7 +38,6 @@
             String direccionExacta = request.getParameter("direccionExacta");
             String tipoVivienda = request.getParameter("tipoVivienda");
             
-            
             // Construir dirección completa
             String direccionCompleta = String.format("%s, %s, %s. %s", 
                 provincia, canton, distrito, direccionExacta);
@@ -82,7 +81,6 @@
             String tipoAyudaSolicitada = request.getParameter("tipoAyudaSolicitada");
             String motivoSolicitud = request.getParameter("motivoSolicitud");
             String observaciones = request.getParameter("observaciones");
-
             
             // Convertir parroquia
             Integer idParroquia = 1; // Valor por defecto
@@ -762,7 +760,7 @@
                             </div>
                         </div>
                     </div>
-
+                  
                     <!-- Información de Solicitud de Ayuda -->
                     <div class="card">
                         <div class="card-header">
