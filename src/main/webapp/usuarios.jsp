@@ -10,16 +10,27 @@
 <%@page import="java.util.List"%>
 
 <%
-    // Verificar sesión
+
     Usuario usuarioLogueado = (Usuario) session.getAttribute("usuario");
     if (usuarioLogueado == null) {
         response.sendRedirect("index.jsp");
         return;
     }
     
-    // Cargar lista de usuarios
+
     UsuarioController controller = new UsuarioController();
     List<Usuario> usuarios = controller.listarTodos();
+    
+    if ("POST".equalsIgnoreCase(request.getMethod())
+            && "toggle".equals(request.getParameter("accion"))) {
+
+            Integer idUsuario = Integer.parseInt(request.getParameter("idUsuario"));
+
+            controller.cambiarEstadoUsuario(idUsuario);
+            response.sendRedirect("usuarios.jsp");
+
+            return;
+    }
 %>
 
 <!DOCTYPE html>
@@ -571,7 +582,7 @@
             </div>
             <div class="nav-actions">
                 <a href="usuarios.jsp">Configurar cuenta</a>
-                <a href="logout.jsp">Cerrar sesión</a>
+                <a href="index.jsp">Cerrar sesión</a>
             </div>
         </header>
 
@@ -619,7 +630,7 @@
                                     <option value="">Todos</option>
                                     <option value="ADMIN">Administrador</option>
                                     <option value="COORDINADOR">Coordinador</option>
-                                    <option value="VOLUNTARIO">Voluntario</option>
+                                    
                                 </select>
                             </div>
                             <div class="filter-group">
@@ -659,9 +670,7 @@
                                                 case COORDINADOR:
                                                     badgeRol = "badge-coordinador";
                                                     break;
-                                                case VOLUNTARIO:
-                                                    badgeRol = "badge-voluntario";
-                                                    break;
+                                                
                                             }
                                         %>
                                         <tr
@@ -677,7 +686,7 @@
                                                     <%= u.getRol() %>
                                                 </span>
                                             </td>
-                                            <td>Catedral</td>
+                                            <td><%= u.getParroquia().getNombre() %></td>
                                             <td>
                                                 <span class="badge <%= u.getActivo() ? "badge-active" : "badge-inactive" %> estado-badge">
                                                     <%= u.getActivo() ? "Activo" : "Inactivo" %>
@@ -685,8 +694,16 @@
                                             </td>
                                             
                                             <td class="acciones-cell">
-                                            <button class="btn-table btn-toggle-estado" type="button">Inactivar</button>
-                                            <button class="btn-table btn-reset-pass" type="button">Restablecer clave</button>
+                                                <form action="usuarios.jsp" method="post" style="display:inline;">
+                                                    <input type="hidden" name="accion" value="toggle">
+                                                    <input type="hidden" name="idUsuario" value="<%= u.getIdUsuario() %>">
+                                                    <button class="btn-table" type="submit">
+                                                        <%= u.getActivo() ? "Desactivar" : "Activar" %>
+                                                    </button>
+                                                </form>
+                                                
+                                                
+                                                <button class="btn-table btn-reset-pass" type="button">Restablecer clave</button>
                                             </td>
                                             
                                         </tr>

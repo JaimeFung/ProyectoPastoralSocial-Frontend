@@ -5,6 +5,56 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="edu.ulatina.controller.UsuarioController" %>
+<%@ page import="edu.ulatina.model.Usuario" %>
+<%@ page import="edu.ulatina.model.Usuario.Rol" %>
+<%@ page import="edu.ulatina.model.Parroquia" %>
+<%
+    String errorMessage = null;
+    String successMessage = null;
+
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+
+        String nombre = request.getParameter("nombre");
+        String apellidos = request.getParameter("apellidos");
+        String email = request.getParameter("email");
+        String telefono = request.getParameter("telefono");
+        Integer idParroquia = Integer.parseInt(request.getParameter("parroquia"));
+
+        String rol = request.getParameter("rol");
+        String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirmPassword");
+
+        // Validación mínima (no diseño, solo lógica)
+        if (!password.equals(confirmPassword)) {
+            errorMessage = "Las contraseñas no coinciden";
+        } else {
+            try {
+                UsuarioController controller = new UsuarioController();
+
+                String nombreCompleto = nombre + " " + apellidos;
+                String nombreUsuario = email; // usas email como username
+
+                controller.registrarUsuario(
+                    nombreUsuario,
+                    password,
+                    nombreCompleto,
+                    Rol.valueOf(rol),
+                    email,
+                    idParroquia,
+                    telefono
+                );
+
+                successMessage = "Usuario registrado correctamente";
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                errorMessage = "Error al registrar usuario: " + e.getMessage();
+            }
+        }
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -221,8 +271,18 @@
                 <h1>Registro de Usuario</h1>
                 <p class="subtitle">Pastoral Social - Diócesis de Cartago</p>
             </div>
+            <% if (errorMessage != null) { %>
+                <p style="color:red; text-align:center; margin-bottom:1rem;">
+                    <%= errorMessage %>
+                </p>
+            <% } %>
 
-            <form action="login.jsp" method="post">
+            <% if (successMessage != null) { %>
+                <p style="color:green; text-align:center; margin-bottom:1rem;">
+                    <%= successMessage %>
+                </p>
+            <% } %>
+            <form action="registro.jsp" method="post">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nombre">Nombre</label> <input type="text" id="nombre"
@@ -250,21 +310,23 @@
                         <label for="parroquia">Parroquia</label> <select id="parroquia"
                                                                          name="parroquia" required>
                             <option value="">Seleccione una parroquia</option>
-                            <option value="santiago-apostol">Parroquia Santiago
-                                Apóstol</option>
-                            <option value="san-nicolas">Parroquia San Nicolás</option>
-                            <option value="inmaculada-concepcion">Parroquia
-                                Inmaculada Concepción</option>
-                            <option value="nuestra-senora-pilar">Parroquia Nuestra
-                                Señora del Pilar</option>
+                            <option value="1">Nuestra Señora del Carmen</option>
+                            <option value="2">Nuestra Señora de Guadalupe</option>
+                            <option value="3">Nuestra Señora de los Ángeles</option>
+                            <option value="4">Dulce Nombre de Jesús</option>
+                            <option value="5">María Auxiliadora</option>
+                            <option value="6">San Esteban Protomártir</option>
+                            <option value="7">San Blas Obispo y Mártir</option>
+                            <option value="8">San Nicolás de Tolentino</option>
+                            <option value="9">San Rafael Arcángel</option>
+                            <option value="10">Inmaculada Concepción de María</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="rol">Rol</label> <select id="rol" name="rol" required>
                             <option value="">Seleccione un rol</option>
-                            <option value="coordinador">Coordinador Pastoral</option>
-                            <option value="voluntario">Voluntario</option>
-                            <option value="administrador">Administrador</option>
+                            <option value="COORDINADOR">Coordinador Pastoral</option>
+                            <option value="ADMIN">Administrador</option>
                         </select>
                     </div>
                 </div>
