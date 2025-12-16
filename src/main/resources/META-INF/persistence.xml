@@ -14,10 +14,10 @@
 		<class>edu.ulatina.model.AyudaEntregada</class>
 		<properties>
 			<property name="javax.persistence.jdbc.url"
-				value="jdbc:mysql://localhost:3306/dbpastoral" />
+				value="jdbc:mysql://localhost:3306/dbpastoral?serverTimezone=UTC" />
 			<property name="javax.persistence.jdbc.user" value="root" />
 			<property name="javax.persistence.jdbc.password"
-				value="adminadmin" />
+				value="admin" />
 			<property name="javax.persistence.jdbc.driver"
 				value="com.mysql.cj.jdbc.Driver" />
 			<property name="hibernate.hbm2ddl.auto" value="create" />

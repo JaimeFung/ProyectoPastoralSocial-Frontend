@@ -1,10 +1,188 @@
 <%-- 
     Document   : crear-expediente
-    Created on : Dec 15, 2025, 5:15:44 PM
+    Created on : Dec 15, 2025, 5:15:44 PM
     Author     : Jaime
 --%>
 
+<%@page import="edu.ulatina.controller.FamiliaController"%>
+<%@page import="edu.ulatina.model.Familia"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%
+    // Variables para mensajes
+    String mensajeExito = null;
+    String mensajeError = null;
+    
+    // Verificar si es POST (envío del formulario)
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        try {
+            // ============================================
+            // PROCESAR FORMULARIO
+            // ============================================
+            
+            // SECCIÓN 1: INFORMACIÓN PERSONAL
+            String nombre = request.getParameter("nombre");
+            String primerApellido = request.getParameter("primerApellido");
+            String segundoApellido = request.getParameter("segundoApellido");
+            String cedula = request.getParameter("cedula");
+            String fechaNacimiento = request.getParameter("fechaNacimiento");
+            String genero = request.getParameter("genero");
+            String estadoCivil = request.getParameter("estadoCivil");
+            String telefono = request.getParameter("telefono");
+            String email = request.getParameter("email");
+            
+            // SECCIÓN 2: INFORMACIÓN DE VIVIENDA
+            String provincia = request.getParameter("provincia");
+            String canton = request.getParameter("canton");
+            String distrito = request.getParameter("distrito");
+            String direccionExacta = request.getParameter("direccionExacta");
+            String tipoVivienda = request.getParameter("tipoVivienda");
+            
+            
+            // Construir dirección completa
+            String direccionCompleta = String.format("%s, %s, %s. %s", 
+                provincia, canton, distrito, direccionExacta);
+            
+            // SECCIÓN 3: INFORMACIÓN FAMILIAR Y SOCIOECONÓMICA
+            String numeroPersonasHogar = request.getParameter("numeroPersonasHogar");
+            String ingresoMensual = request.getParameter("ingresoMensual");
+            
+            // Convertir número de personas a Integer
+            Integer cantidadMiembros;
+            try {
+                cantidadMiembros = Integer.parseInt(numeroPersonasHogar);
+            } catch (Exception e) {
+                cantidadMiembros = 0;
+            }
+            
+            Familia.TipoVivienda tipoViviendaEnum = Familia.TipoVivienda.valueOf(tipoVivienda.toUpperCase());
+
+            
+            // Determinar situación económica
+            Familia.SituacionEconomica situacionEconomica = Familia.SituacionEconomica.BAJA;
+            try {
+                String ingresoLimpio = ingresoMensual.replaceAll("[^0-9]", "");
+                double ingreso = Double.parseDouble(ingresoLimpio);
+                
+                if (ingreso < 200000) {
+                    situacionEconomica = Familia.SituacionEconomica.MUY_BAJA;
+                } else if (ingreso < 400000) {
+                    situacionEconomica = Familia.SituacionEconomica.BAJA;
+                } else if (ingreso < 700000) {
+                    situacionEconomica = Familia.SituacionEconomica.MEDIA;
+                } else {
+                    situacionEconomica = Familia.SituacionEconomica.ESTABLE;
+                }
+            } catch (Exception e) {
+                situacionEconomica = Familia.SituacionEconomica.BAJA;
+            }
+            
+            // SECCIÓN 4: INFORMACIÓN DE SOLICITUD DE AYUDA
+            String parroquiaStr = request.getParameter("parroquia");
+            String tipoAyudaSolicitada = request.getParameter("tipoAyudaSolicitada");
+            String motivoSolicitud = request.getParameter("motivoSolicitud");
+            String observaciones = request.getParameter("observaciones");
+
+            
+            // Convertir parroquia
+            Integer idParroquia = 1; // Valor por defecto
+            switch (parroquiaStr) {
+                case "santiago-apostol":
+                    idParroquia = 1;
+                    break;
+                case "san-nicolas":
+                    idParroquia = 2;
+                    break;
+                case "inmaculada-concepcion":
+                    idParroquia = 3;
+                    break;
+                case "nuestra-senora-pilar":
+                    idParroquia = 4;
+                    break;
+            }
+            
+            // Convertir tipo de ayuda
+            Integer idTipoAyuda = null;
+            switch (tipoAyudaSolicitada) {
+                case "alimentaria":
+                    idTipoAyuda = 1;
+                    break;
+                case "medicamentos":
+                    idTipoAyuda = 2;
+                    break;
+                case "vivienda":
+                    idTipoAyuda = 3;
+                    break;
+                case "educacion":
+                    idTipoAyuda = 4;
+                    break;
+                case "servicios":
+                    idTipoAyuda = 5;
+                    break;
+                case "vestimenta":
+                    idTipoAyuda = 6;
+                    break;
+                case "otra":
+                    idTipoAyuda = 7;
+                    break;
+            }
+            
+            // Generar número de expediente
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyyMMdd");
+            String fecha = sdf.format(new java.util.Date());
+            int random = (int) (Math.random() * 999999);
+            String numeroExpediente = String.format("EXP-%s-%06d", fecha, random);
+            
+            // VALIDACIONES
+            if (nombre == null || nombre.trim().isEmpty() ||
+                primerApellido == null || primerApellido.trim().isEmpty() ||
+                segundoApellido == null || segundoApellido.trim().isEmpty() ||
+                cedula == null || cedula.trim().isEmpty()) {
+                
+                mensajeError = "Todos los campos obligatorios deben ser completados";
+            } else {
+                // CREAR FAMILIA COMPLETA
+                FamiliaController familiaController = new FamiliaController();
+                
+                Familia familia = familiaController.registrarFamiliaCompleta(
+                    idParroquia,
+                    numeroExpediente,
+                    direccionCompleta,
+                    telefono,
+                    situacionEconomica,
+                    observaciones,
+                    motivoSolicitud,
+                    cantidadMiembros,
+                    idTipoAyuda,
+                    nombre,
+                    primerApellido,
+                    segundoApellido,
+                    cedula,
+                    fechaNacimiento,
+                    genero,
+                    estadoCivil,
+                    email,
+                    tipoViviendaEnum
+                );
+                
+                if (familia != null) {
+                    // Éxito - redirigir a expedientes
+                    session.setAttribute("mensajeExito", 
+                        "Expediente creado exitosamente: " + numeroExpediente);
+                    response.sendRedirect("expedientes.jsp");
+                    return;
+                } else {
+                    mensajeError = "Error al crear el expediente. Intente nuevamente.";
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            mensajeError = "Error del sistema: " + e.getMessage();
+        }
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -360,6 +538,25 @@
                 background: #F3F4F6;
             }
 
+            .alert {
+                padding: 1rem 1.2rem;
+                border-radius: 10px;
+                margin-bottom: 1.5rem;
+                font-weight: 500;
+            }
+
+            .alert-error {
+                background: #FEE2E2;
+                border: 1px solid #EF4444;
+                color: #DC2626;
+            }
+
+            .alert-success {
+                background: #D1FAE5;
+                border: 1px solid #10B981;
+                color: #059669;
+            }
+
             @media ( max-width : 768px) {
                 .sidebar {
                     width: 100%;
@@ -403,7 +600,6 @@
 
         <div class="main-content">
             <header class="top-navbar">
-
                 <div class="nav-actions">
                     <a href="usuarios.jsp">Configurar cuenta</a>
                     <a href="login.jsp">Cerrar sesión</a>
@@ -420,7 +616,14 @@
                     </div>
                 </div>
 
-                <form action="expedientes.jsp" method="post">
+                <%-- MENSAJES DE ERROR Y ÉXITO --%>
+                <% if (mensajeError != null) { %>
+                    <div class="alert alert-error">
+                        ❌ <%= mensajeError %>
+                    </div>
+                <% } %>
+
+                <form method="post">
                     <!-- Información Personal -->
                     <div class="card">
                         <div class="card-header">
@@ -430,33 +633,35 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="nombre">Nombre</label> <input type="text" id="nombre"
-                                                                          name="nombre" placeholder="Nombre" required>
+                                <label for="nombre">Nombre</label> 
+                                <input type="text" id="nombre" name="nombre" 
+                                       placeholder="Nombre" required>
                             </div>
                             <div class="form-group">
-                                <label for="primerApellido">Primer Apellido</label> <input
-                                    type="text" id="primerApellido" name="primerApellido"
-                                    placeholder="Primer Apellido" required>
+                                <label for="primerApellido">Primer Apellido</label> 
+                                <input type="text" id="primerApellido" name="primerApellido"
+                                       placeholder="Primer Apellido" required>
                             </div>
                             <div class="form-group">
-                                <label for="segundoApellido">Segundo Apellido</label> <input
-                                    type="text" id="segundoApellido" name="segundoApellido"
-                                    placeholder="Segundo Apellido" required>
+                                <label for="segundoApellido">Segundo Apellido</label> 
+                                <input type="text" id="segundoApellido" name="segundoApellido"
+                                       placeholder="Segundo Apellido" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="cedula">Cédula</label> <input type="text" id="cedula"
-                                                                          name="cedula" placeholder="1-0234-0567" required>
+                                <label for="cedula">Cédula</label> 
+                                <input type="text" id="cedula" name="cedula" 
+                                       placeholder="1-0234-0567" required>
                             </div>
                             <div class="form-group">
-                                <label for="fechaNacimiento">Fecha de Nacimiento</label> <input
-                                    type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+                                <label for="fechaNacimiento">Fecha de Nacimiento</label> 
+                                <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
                             </div>
                             <div class="form-group">
-                                <label for="genero">Género</label> <select id="genero"
-                                                                           name="genero" required>
+                                <label for="genero">Género</label> 
+                                <select id="genero" name="genero" required>
                                     <option value="">Seleccione</option>
                                     <option value="masculino">Masculino</option>
                                     <option value="femenino">Femenino</option>
@@ -467,8 +672,8 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="estadoCivil">Estado Civil</label> <select
-                                    id="estadoCivil" name="estadoCivil" required>
+                                <label for="estadoCivil">Estado Civil</label> 
+                                <select id="estadoCivil" name="estadoCivil" required>
                                     <option value="">Seleccione</option>
                                     <option value="soltero">Soltero(a)</option>
                                     <option value="casado">Casado(a)</option>
@@ -478,12 +683,14 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="telefono">Teléfono</label> <input type="tel"
-                                                                              id="telefono" name="telefono" placeholder="8888-8888" required>
+                                <label for="telefono">Teléfono</label> 
+                                <input type="tel" id="telefono" name="telefono" 
+                                       placeholder="8888-8888" required>
                             </div>
                             <div class="form-group">
-                                <label for="email">Correo Electrónico</label> <input type="email"
-                                                                                     id="email" name="email" placeholder="correo@ejemplo.com">
+                                <label for="email">Correo Electrónico</label> 
+                                <input type="email" id="email" name="email" 
+                                       placeholder="correo@ejemplo.com">
                             </div>
                         </div>
                     </div>
@@ -497,8 +704,8 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="provincia">Provincia</label> <select id="provincia"
-                                                                                 name="provincia" required>
+                                <label for="provincia">Provincia</label> 
+                                <select id="provincia" name="provincia" required>
                                     <option value="">Seleccione</option>
                                     <option value="cartago">Cartago</option>
                                     <option value="san-jose">San José</option>
@@ -506,12 +713,14 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="canton">Cantón</label> <input type="text" id="canton"
-                                                                          name="canton" placeholder="Cantón" required>
+                                <label for="canton">Cantón</label> 
+                                <input type="text" id="canton" name="canton" 
+                                       placeholder="Cantón" required>
                             </div>
                             <div class="form-group">
-                                <label for="distrito">Distrito</label> <input type="text"
-                                                                              id="distrito" name="distrito" placeholder="Distrito" required>
+                                <label for="distrito">Distrito</label> 
+                                <input type="text" id="distrito" name="distrito" 
+                                       placeholder="Distrito" required>
                             </div>
                         </div>
 
@@ -522,8 +731,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="tipoVivienda">Tipo de Vivienda</label> <select
-                                id="tipoVivienda" name="tipoVivienda" required>
+                            <label for="tipoVivienda">Tipo de Vivienda</label> 
+                            <select id="tipoVivienda" name="tipoVivienda" required>
                                 <option value="">Seleccione</option>
                                 <option value="propia">Propia</option>
                                 <option value="alquilada">Alquilada</option>
@@ -542,19 +751,14 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="numeroPersonasHogar">Personas en el Hogar</label> <input
-                                    type="number" id="numeroPersonasHogar"
-                                    name="numeroPersonasHogar" placeholder="0" min="0" required>
+                                <label for="numeroPersonasHogar">Personas en el Hogar</label> 
+                                <input type="text" id="numeroPersonasHogar"
+                                       name="numeroPersonasHogar" placeholder="0" required>
                             </div>
                             <div class="form-group">
-                                <label for="numeroDependientes">Número de Dependientes</label> <input
-                                    type="number" id="numeroDependientes" name="numeroDependientes"
-                                    placeholder="0" min="0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="ingresoMensual">Ingreso Mensual Aprox.</label> <input
-                                    type="text" id="ingresoMensual" name="ingresoMensual"
-                                    placeholder="₡0" required>
+                                <label for="ingresoMensual">Ingreso Mensual Aprox.</label> 
+                                <input type="text" id="ingresoMensual" name="ingresoMensual"
+                                       placeholder="₡0" required>
                             </div>
                         </div>
                     </div>
@@ -564,27 +768,22 @@
                         <div class="card-header">
                             <h2 class="card-title">Información de Solicitud de Ayuda</h2>
                         </div>
-                        <p class="card-description">Detalles de la ayuda pastoral
-                            requerida</p>
+                        <p class="card-description">Detalles de la ayuda pastoral requerida</p>
 
                         <div class="form-row-2">
                             <div class="form-group">
-                                <label for="parroquia">Parroquia de Referencia</label> <select
-                                    id="parroquia" name="parroquia" required>
+                                <label for="parroquia">Parroquia de Referencia</label> 
+                                <select id="parroquia" name="parroquia" required>
                                     <option value="">Seleccione una parroquia</option>
-                                    <option value="santiago-apostol">Parroquia Santiago
-                                        Apóstol</option>
+                                    <option value="santiago-apostol">Parroquia Santiago Apóstol</option>
                                     <option value="san-nicolas">Parroquia San Nicolás</option>
-                                    <option value="inmaculada-concepcion">Parroquia
-                                        Inmaculada Concepción</option>
-                                    <option value="nuestra-senora-pilar">Parroquia Nuestra
-                                        Señora del Pilar</option>
+                                    <option value="inmaculada-concepcion">Parroquia Inmaculada Concepción</option>
+                                    <option value="nuestra-senora-pilar">Parroquia Nuestra Señora del Pilar</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label for="tipoAyudaSolicitada">Tipo de Ayuda Solicitada</label>
-                                <select id="tipoAyudaSolicitada" name="tipoAyudaSolicitada"
-                                        required>
+                                <select id="tipoAyudaSolicitada" name="tipoAyudaSolicitada" required>
                                     <option value="">Seleccione</option>
                                     <option value="alimentaria">Ayuda Alimentaria</option>
                                     <option value="medicamentos">Medicamentos</option>
@@ -615,13 +814,14 @@
                     <div class="btn-group">
                         <button type="button" class="btn btn-secondary"
                                 onclick="window.location.href = 'expedientes.jsp'">
-                            Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar
-                            Expediente</button>
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Guardar Expediente
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </body>
 </html>
-

@@ -1,10 +1,41 @@
 <%-- 
     Document   : expedientes
-    Created on : Dec 15, 2025, 5:16:32 PM
+    Created on : Dec 15, 2025, 5:16:32 PM
     Author     : Jaime
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="edu.ulatina.controller.FamiliaController"%>
+<%@page import="edu.ulatina.controller.ExpedienteController"%>
+<%@page import="edu.ulatina.controller.ParroquiaController"%>
+<%@page import="edu.ulatina.model.Usuario"%>
+<%@page import="edu.ulatina.model.Familia"%>
+<%@page import="edu.ulatina.model.Expediente"%>
+<%@page import="edu.ulatina.model.Parroquia"%>
+<%@page import="java.util.List"%>
+<%@page import="java.text.SimpleDateFormat"%>
+
+<%
+    // Verificar sesión
+    Usuario usuarioLogueado = (Usuario) session.getAttribute("usuario");
+    if (usuarioLogueado == null) {
+        response.sendRedirect("index.jsp");
+        return;
+    }
+    
+    // Cargar datos del backend
+    FamiliaController familiaController = new FamiliaController();
+    ExpedienteController expedienteController = new ExpedienteController();
+    ParroquiaController parroquiaController = new ParroquiaController();
+    
+    List<Familia> familias = familiaController.listarActivas();
+    List<Expediente> expedientes = expedienteController.listarTodos();
+    List<Parroquia> parroquias = parroquiaController.listarActivas();
+    
+    // Formato de fecha
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+%>
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
@@ -39,7 +70,6 @@
             }
 
             /* SIDEBAR */
-
             .sidebar {
                 width: 280px;
                 background: #FFFFFF;
@@ -141,7 +171,6 @@
             }
 
             /* TOP NAVBAR */
-
             .top-navbar {
                 position: fixed;
                 top: 0;
@@ -152,9 +181,18 @@
                 border-bottom: 1px solid var(--color-border);
                 padding: 0.9rem 2rem;
                 display: flex;
-                justify-content: flex-end;
+                justify-content: space-between;
                 align-items: center;
                 z-index: 10;
+            }
+
+            .user-info {
+                font-size: 0.875rem;
+                color: var(--color-muted);
+            }
+
+            .user-info strong {
+                color: var(--color-primary);
             }
 
             .nav-actions {
@@ -176,7 +214,6 @@
             }
 
             /* MAIN LAYOUT */
-
             .main-content {
                 margin-left: 280px;
                 flex: 1;
@@ -233,23 +270,7 @@
                 transform: translateY(-1px);
             }
 
-            .btn-ghost {
-                background: transparent;
-                color: var(--color-primary);
-                padding: 0.45rem 0.8rem;
-                border-radius: 999px;
-                border: none;
-                font-size: 0.8rem;
-                cursor: pointer;
-                transition: background-color 0.2s ease;
-            }
-
-            .btn-ghost:hover {
-                background: #E3EDF5;
-            }
-
             /* CARDS */
-
             .card {
                 background: #FFFFFF;
                 border-radius: 12px;
@@ -273,7 +294,6 @@
             }
 
             /* BÚSQUEDA + FILTROS */
-
             .filters-row {
                 display: grid;
                 grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -313,7 +333,6 @@
             }
 
             /* TABLA */
-
             .table-container {
                 overflow-x: auto;
             }
@@ -378,6 +397,11 @@
                 color: #6B7280;
             }
 
+            .badge-cerrado {
+                background: #FEE2E2;
+                color: #991B1B;
+            }
+
             .acciones-cell {
                 white-space: nowrap;
             }
@@ -401,6 +425,16 @@
                 background: var(--color-primary);
                 color: #FFFFFF;
                 box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1rem;
+                color: var(--color-muted);
+            }
+
+            .empty-state p {
+                margin-bottom: 1rem;
             }
 
             @media (max-width: 768px) {
@@ -458,14 +492,21 @@
                 <a href="expedientes.jsp" class="nav-item active">
                     <span>Expedientes</span>
                 </a>
+                <a href="usuarios.jsp" class="nav-item">
+                    <span>Usuarios y seguridad</span>
+                </a>
             </nav>
         </aside>
 
         <!-- Top navbar -->
         <header class="top-navbar">
+            <div class="user-info">
+                <strong><%= usuarioLogueado.getNombreCompleto() %></strong> 
+                (<%= usuarioLogueado.getRol() %>)
+            </div>
             <div class="nav-actions">
                 <a href="usuarios.jsp">Configurar cuenta</a>
-                <a href="index.jsp">Cerrar sesión</a>
+                <a href="logout.jsp">Cerrar sesión</a>
             </div>
         </header>
 
@@ -476,9 +517,11 @@
                 <div class="page-header">
                     <div>
                         <h1 class="page-title">Expedientes de beneficiarios</h1>
-                        <p class="page-subtitle">Gestión y seguimiento de beneficiarios de la Pastoral Social.</p>
+                        <p class="page-subtitle">
+                            Gestión y seguimiento de <%= familias.size() %> familias beneficiarias.
+                        </p>
                     </div>
-                    <a href="crear-expediente.jsp" class="btn">Crear expediente</a>
+                    <a href="crear-expediente.jsp" class="btn">+ Crear expediente</a>
                 </div>
 
                 <!-- Búsqueda y filtros -->
@@ -502,8 +545,9 @@
                             <label for="filtroEstado">Estado del expediente</label>
                             <select id="filtroEstado" class="filter-select">
                                 <option value="">Todos</option>
-                                <option value="activo">Activo</option>
-                                <option value="inactivo">Inactivo</option>
+                                <option value="ACTIVO">Activo</option>
+                                <option value="INACTIVO">Inactivo</option>
+                                <option value="CERRADO">Cerrado</option>
                             </select>
                         </div>
 
@@ -511,10 +555,11 @@
                             <label for="filtroParroquia">Parroquia</label>
                             <select id="filtroParroquia" class="filter-select">
                                 <option value="">Todas</option>
-                                <option value="catedral">Catedral</option>
-                                <option value="san-jose">San José</option>
-                                <option value="inmaculada">Inmaculada Concepción</option>
-                                <option value="ns-pilar">Nuestra Señora del Pilar</option>
+                                <% for (Parroquia p : parroquias) { %>
+                                    <option value="<%= p.getIdParroquia() %>">
+                                        <%= p.getNombre() %>
+                                    </option>
+                                <% } %>
                             </select>
                         </div>
                     </div>
@@ -524,95 +569,94 @@
                 <section class="card">
                     <h2 class="card-title">Lista de expedientes</h2>
                     <p class="card-description">
-                        <span id="resultCount">5</span> expediente(s) encontrado(s)
+                        <span id="resultCount"><%= familias.size() %></span> expediente(s) encontrado(s)
                     </p>
 
                     <div class="table-container">
-                        <table id="expedientesTable">
-                            <thead>
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Beneficiario</th>
-                                    <th>Cédula</th>
-                                    <th>Parroquia</th>
-                                    <th>Estado</th>
-                                    <th>Fecha de creación</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr data-estado="activo" data-parroquia="catedral">
-                                    <td>EXP-001</td>
-                                    <td>
-                                        <div class="beneficiary-name">María José Rodríguez Solís</div>
-                                        <div class="beneficiary-phone">8888-1234</div>
-                                    </td>
-                                    <td>1-0123-0456</td>
-                                    <td>Catedral</td>
-                                    <td><span class="badge badge-active">Activo</span></td>
-                                    <td>05/12/2025</td>
-                                    <td class="acciones-cell">
-                                        <a href="expediente-detalle.jsp" class="link-acciones">Ver detalle</a>
-                                    </td>
-                                </tr>
-                                <tr data-estado="activo" data-parroquia="san-jose">
-                                    <td>EXP-002</td>
-                                    <td>
-                                        <div class="beneficiary-name">Carlos Andrés Jiménez Pérez</div>
-                                        <div class="beneficiary-phone">8765-4321</div>
-                                    </td>
-                                    <td>1-0234-0567</td>
-                                    <td>San José</td>
-                                    <td><span class="badge badge-active">Activo</span></td>
-                                    <td>28/11/2025</td>
-                                    <td class="acciones-cell">
-                                        <a href="expediente-detalle.jsp" class="link-acciones">Ver detalle</a>
-                                    </td>
-                                </tr>
-                                <tr data-estado="inactivo" data-parroquia="inmaculada">
-                                    <td>EXP-003</td>
-                                    <td>
-                                        <div class="beneficiary-name">Ana Lucía López Vargas</div>
-                                        <div class="beneficiary-phone">8987-6543</div>
-                                    </td>
-                                    <td>1-0456-0789</td>
-                                    <td>Inmaculada Concepción</td>
-                                    <td><span class="badge badge-inactive">Inactivo</span></td>
-                                    <td>10/10/2025</td>
-                                    <td class="acciones-cell">
-                                        <a href="expediente-detalle.jsp" class="link-acciones">Ver detalle</a>
-                                    </td>
-                                </tr>
-                                <tr data-estado="activo" data-parroquia="ns-pilar">
-                                    <td>EXP-004</td>
-                                    <td>
-                                        <div class="beneficiary-name">José Manuel Hernández Castro</div>
-                                        <div class="beneficiary-phone">8098-7654</div>
-                                    </td>
-                                    <td>1-0567-0890</td>
-                                    <td>Nuestra Señora del Pilar</td>
-                                    <td><span class="badge badge-active">Activo</span></td>
-                                    <td>01/12/2025</td>
-                                    <td class="acciones-cell">
-                                        <a href="expediente-detalle.jsp" class="link-acciones">Ver detalle</a>
-                                    </td>
-                                </tr>
-                                <tr data-estado="activo" data-parroquia="catedral">
-                                    <td>EXP-005</td>
-                                    <td>
-                                        <div class="beneficiary-name">Luis Alberto Fernández Mora</div>
-                                        <div class="beneficiary-phone">7000-1111</div>
-                                    </td>
-                                    <td>1-0678-0901</td>
-                                    <td>Catedral</td>
-                                    <td><span class="badge badge-active">Activo</span></td>
-                                    <td>15/11/2025</td>
-                                    <td class="acciones-cell">
-                                        <a href="expediente-detalle.jsp" class="link-acciones">Ver detalle</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <% if (familias.isEmpty()) { %>
+                            <div class="empty-state">
+                                <p>No hay expedientes registrados en el sistema.</p>
+                                <a href="crear-expediente.jsp" class="btn">Crear primer expediente</a>
+                            </div>
+                        <% } else { %>
+                            <table id="expedientesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Jefe de Familia</th>
+                                        <th>Cédula</th>
+                                        <th>Parroquia</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                        <th>Ayudas</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% 
+                                    for (Familia f : familias) {
+                                        // Buscar expediente de esta familia
+                                        Expediente exp = null;
+                                        for (Expediente e : expedientes) {
+                                            if (e.getFamilia().getIdFamilia().equals(f.getIdFamilia())) {
+                                                exp = e;
+                                                break;
+                                            }
+                                        }
+                                        
+                                        String estadoBadge = "badge-active";
+                                        String estadoTexto = "Activo";
+                                        
+                                        if (exp != null) {
+                                            switch(exp.getEstado()) {
+                                                case ACTIVO:
+                                                    estadoBadge = "badge-active";
+                                                    estadoTexto = "Activo";
+                                                    break;
+                                                case INACTIVO:
+                                                    estadoBadge = "badge-inactive";
+                                                    estadoTexto = "Inactivo";
+                                                    break;
+                                                case CERRADO:
+                                                    estadoBadge = "badge-cerrado";
+                                                    estadoTexto = "Cerrado";
+                                                    break;
+                                            }
+                                        }
+                                    %>
+                                    <tr data-estado="<%= exp != null ? exp.getEstado() : "SIN_EXPEDIENTE" %>" 
+                                        data-parroquia="<%= f.getParroquia().getIdParroquia() %>">
+                                        <td><%= f.getNumeroExpediente() %></td>
+                                        <td>
+                                            <div class="beneficiary-name"><%= f.getNombreJefeFamilia() %></div>
+                                            <% if (f.getTelefono() != null && !f.getTelefono().isEmpty()) { %>
+                                                <div class="beneficiary-phone"><%= f.getTelefono() %></div>
+                                            <% } %>
+                                        </td>
+                                        <td><%= f.getIdentificacionJefe() %></td>
+                                        <td><%= f.getParroquia().getNombre() %></td>
+                                        <td>
+                                            <span class="badge <%= estadoBadge %>">
+                                                <%= estadoTexto %>
+                                            </span>
+                                        </td>
+                                        <td><%= dateFormat.format(f.getFechaRegistro()) %></td>
+                                        <td>
+                                            <% if (exp != null) { %>
+                                                <%= exp.getTotalAyudasRecibidas() %>
+                                            <% } else { %>
+                                                0
+                                            <% } %>
+                                        </td>
+                                        <td class="acciones-cell">
+                                            <a href="expediente-detalle.jsp?id=<%= f.getIdFamilia() %>" 
+                                               class="link-acciones">Ver detalle</a>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        <% } %>
                     </div>
                 </section>
 
@@ -626,47 +670,47 @@
             const filtroParroquia = document.getElementById('filtroParroquia');
 
             const table = document.getElementById('expedientesTable');
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const tbody = table ? table.querySelector('tbody') : null;
             const resultCount = document.getElementById('resultCount');
 
-            function aplicarFiltros() {
-                const texto = searchInput.value.trim().toLowerCase();
-                const estadoSeleccionado = filtroEstado.value;      // "" | "activo" | "inactivo"
-                const parroquiaSeleccionada = filtroParroquia.value; // "" | "catedral" | "inmaculada" | "ns-pilar" | "otra"
+            if (tbody) {
+                const rows = Array.from(tbody.querySelectorAll('tr'));
 
-                let visibles = 0;
+                function aplicarFiltros() {
+                    const texto = searchInput.value.trim().toLowerCase();
+                    const estadoSeleccionado = filtroEstado.value;
+                    const parroquiaSeleccionada = filtroParroquia.value;
 
-                rows.forEach(row => {
-                    const contenido = row.textContent.toLowerCase();
-                    const estadoRow = row.dataset.estado || "";
-                    const parroquiaRow = row.dataset.parroquia || "";
+                    let visibles = 0;
 
-                    const coincideTexto = !texto || contenido.includes(texto);
-                    const coincideEstado = !estadoSeleccionado || estadoRow === estadoSeleccionado;
+                    rows.forEach(row => {
+                        const contenido = row.textContent.toLowerCase();
+                        const estadoRow = row.dataset.estado || "";
+                        const parroquiaRow = row.dataset.parroquia || "";
 
-                    const coincideParroquia =
-                            !parroquiaSeleccionada ||
-                            parroquiaRow === parroquiaSeleccionada;
+                        const coincideTexto = !texto || contenido.includes(texto);
+                        const coincideEstado = !estadoSeleccionado || estadoRow === estadoSeleccionado;
+                        const coincideParroquia = !parroquiaSeleccionada || parroquiaRow === parroquiaSeleccionada;
 
-                    if (coincideTexto && coincideEstado && coincideParroquia) {
-                        row.style.display = "";
-                        visibles++;
-                    } else {
-                        row.style.display = "none";
-                    }
-                });
+                        if (coincideTexto && coincideEstado && coincideParroquia) {
+                            row.style.display = "";
+                            visibles++;
+                        } else {
+                            row.style.display = "none";
+                        }
+                    });
 
-                resultCount.textContent = visibles;
+                    resultCount.textContent = visibles;
+                }
+
+                // Eventos
+                searchInput.addEventListener('input', aplicarFiltros);
+                filtroEstado.addEventListener('change', aplicarFiltros);
+                filtroParroquia.addEventListener('change', aplicarFiltros);
+
+                // Aplicar filtros al cargar
+                aplicarFiltros();
             }
-
-            // Eventos
-            searchInput.addEventListener('input', aplicarFiltros);
-            filtroEstado.addEventListener('change', aplicarFiltros);
-            filtroParroquia.addEventListener('change', aplicarFiltros);
-
-            // Aplicar filtros al cargar la página
-            aplicarFiltros();
         </script>
-    </body>
+    </body>
 </html>
-
