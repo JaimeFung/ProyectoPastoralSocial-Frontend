@@ -712,5 +712,5 @@
                 aplicarFiltros();
             }
         </script>
-    </body>
+    </body>
 </html>

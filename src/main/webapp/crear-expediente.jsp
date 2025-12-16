@@ -44,8 +44,18 @@
             
             // SECCIÓN 3: INFORMACIÓN FAMILIAR Y SOCIOECONÓMICA
             String numeroPersonasHogar = request.getParameter("numeroPersonasHogar");
-            String numeroDependientes = request.getParameter("numeroDependientes");
             String ingresoMensual = request.getParameter("ingresoMensual");
+            
+            // Convertir número de personas a Integer
+            Integer cantidadMiembros;
+            try {
+                cantidadMiembros = Integer.parseInt(numeroPersonasHogar);
+            } catch (Exception e) {
+                cantidadMiembros = 0;
+            }
+            
+            Familia.TipoVivienda tipoViviendaEnum = Familia.TipoVivienda.valueOf(tipoVivienda.toUpperCase());
+
             
             // Determinar situación económica
             Familia.SituacionEconomica situacionEconomica = Familia.SituacionEconomica.BAJA;
@@ -89,6 +99,32 @@
                     break;
             }
             
+            // Convertir tipo de ayuda
+            Integer idTipoAyuda = null;
+            switch (tipoAyudaSolicitada) {
+                case "alimentaria":
+                    idTipoAyuda = 1;
+                    break;
+                case "medicamentos":
+                    idTipoAyuda = 2;
+                    break;
+                case "vivienda":
+                    idTipoAyuda = 3;
+                    break;
+                case "educacion":
+                    idTipoAyuda = 4;
+                    break;
+                case "servicios":
+                    idTipoAyuda = 5;
+                    break;
+                case "vestimenta":
+                    idTipoAyuda = 6;
+                    break;
+                case "otra":
+                    idTipoAyuda = 7;
+                    break;
+            }
+            
             // Generar número de expediente
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyyMMdd");
             String fecha = sdf.format(new java.util.Date());
@@ -114,6 +150,8 @@
                     situacionEconomica,
                     observaciones,
                     motivoSolicitud,
+                    cantidadMiembros,
+                    idTipoAyuda,
                     nombre,
                     primerApellido,
                     segundoApellido,
@@ -121,7 +159,8 @@
                     fechaNacimiento,
                     genero,
                     estadoCivil,
-                    email
+                    email,
+                    tipoViviendaEnum
                 );
                 
                 if (familia != null) {
@@ -711,13 +750,8 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="numeroPersonasHogar">Personas en el Hogar</label> 
-                                <input type="number" id="numeroPersonasHogar"
-                                       name="numeroPersonasHogar" placeholder="0" min="0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="numeroDependientes">Número de Dependientes</label> 
-                                <input type="number" id="numeroDependientes" name="numeroDependientes"
-                                       placeholder="0" min="0" required>
+                                <input type="text" id="numeroPersonasHogar"
+                                       name="numeroPersonasHogar" placeholder="0" required>
                             </div>
                             <div class="form-group">
                                 <label for="ingresoMensual">Ingreso Mensual Aprox.</label> 
@@ -726,7 +760,7 @@
                             </div>
                         </div>
                     </div>
-
+                  
                     <!-- Información de Solicitud de Ayuda -->
                     <div class="card">
                         <div class="card-header">
